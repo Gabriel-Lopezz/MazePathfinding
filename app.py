@@ -1,9 +1,10 @@
 import pygame
+
 import tkinter
 from tkinter import filedialog
 import sys
 from button import Button
-
+from maze import Maze
 def prompt_file():
     tk_widget = tkinter.Tk()
     tk_widget.withdraw() # Makes the Tkinter window invisible
@@ -39,7 +40,7 @@ def main():
                 if load_button.rect.collidepoint(event.pos):
                     prompt_file()
 
-        
+
 
         screen.fill((255, 255, 255))
         load_button.draw()
@@ -50,6 +51,7 @@ def main():
 
     pygame.quit()
     sys.exit()
+
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ from tkinter import filedialog
 import sys
 from button import Button
 from maze import Maze
+from constants import *
 def prompt_file():
     tk_widget = tkinter.Tk()
     tk_widget.withdraw() # Makes the Tkinter window invisible
@@ -23,14 +24,14 @@ def prompt_file():
 def main():
     pygame.init()
 
-    screen = pygame.display.set_mode((1000, 700))
+    screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
     pygame.display.set_caption("Maze Pathfinding")
 
     clock = pygame.time.Clock()
 
     running = True
 
-    load_button = Button(screen, pygame.Color(200, 200, 200), pygame.Rect(200, 200, 100, 50), "Test Text")
+    load_button = Button(screen, pygame.Color(BLACK), pygame.Rect(200, 200, 100, 50), "Test Text")
 
     while running:
         for event in pygame.event.get():

@@ -3,9 +3,10 @@ from pygame.font import Font
 
 class Button:
 
-    def __init__(self, screen: pygame.surface, color: pygame.Color, rect: pygame.Rect, text: str = ""):
+    def __init__(self, screen: pygame.surface, bg_color: pygame.Color, text_color: pygame.Color, rect: pygame.Rect, text: str = ""):
         self.screen = screen
-        self.color = color
+        self.bg_color = bg_color #background color
+        self.text_color = text_color
         self.rect = rect
         
         self.text = text

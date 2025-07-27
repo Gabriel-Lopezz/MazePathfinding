@@ -41,11 +41,12 @@ def main():
     # Maze object and maze window border (as kwargs for draw function)
     maze = None
     window_border = [
-        { "surface": screen, "color": pygame.Color(0, 0, 0), "start_pos": (MAZE_SIZE, 0), "end_pos": (MAZE_SIZE, MAZE_SIZE + 2), "width": 5 },
-        { "surface": screen, "color": pygame.Color(0, 0, 0), "start_pos": (0, MAZE_SIZE), "end_pos": (MAZE_SIZE + 2, MAZE_SIZE), "width": 5 }
+        { "surface": screen, "color": BLACK, "start_pos": (MAZE_SIZE, 0), "end_pos": (MAZE_SIZE, MAZE_SIZE + 2), "width": 5 },
+        { "surface": screen, "color": BLACK, "start_pos": (0, MAZE_SIZE), "end_pos": (MAZE_SIZE + 2, MAZE_SIZE), "width": 5 }
     ]
 
-    load_button = Button(screen, pygame.Color(BLACK),pygame.Color(RED), pygame.Rect(200, 200, 100, 50), "Test Text")
+    upload_button = Button(screen, pygame.Color(LIGHT_SKY_BLUE),pygame.Color(WHITE), pygame.Rect(150, 160, 175, 50), "Upload Maze")
+    preload_button = Button(screen, pygame.Color(LIGHT_SKY_BLUE),pygame.Color(WHITE), pygame.Rect(150, 240, 175, 50), "Use Pre-made")
 
     while running:
         for event in pygame.event.get():
@@ -53,7 +54,10 @@ def main():
                 running = False
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if load_button.rect.collidepoint(event.pos):
+                if upload_button.rect.collidepoint(event.pos):
+                    maze_file = prompt_file()
+                    if (maze_file): maze = Maze(maze_file=maze_file, screen=screen)
+                if preload_button.rect.collidepoint(event.pos):
                     maze_file = prompt_file()
                     if (maze_file): maze = Maze(maze_file=maze_file, screen=screen)
 
@@ -62,7 +66,8 @@ def main():
         
         screen.fill((255, 255, 255)) # Background
 
-        load_button.draw() # maze load button
+        upload_button.draw() # maze load button
+        preload_button.draw() # pre-made maze load button
 
         # Draw maze window border and maze
         [pygame.draw.line(**line) for line in window_border]

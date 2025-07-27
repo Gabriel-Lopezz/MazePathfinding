@@ -57,10 +57,10 @@ def main():
     '''
 
     screen.fill((255, 255, 255)) # Background
-
+    # Main Menu Section:
     upload_button.draw() # maze load button
     preload_button.draw() # pre-made maze load button
-
+    [pygame.draw.line(**line) for line in window_border]
     pygame.display.flip()
 
     while running:
@@ -74,11 +74,12 @@ def main():
                     if maze_file and not maze: 
                         maze = Maze(maze_file=maze_file, screen=screen)
                         render_maze(maze=maze, border=window_border)
+                        maze.draw()
                 if preload_button.rect.collidepoint(event.pos):
-                    maze_file = prompt_file()
-                    if maze_file and not maze: 
-                        maze = Maze(maze_file=maze_file, screen=screen)
-                        render_maze(maze=maze, border=window_border)
+                    with open("PreMade_Mazes/10x10_Maze1.csv", "r") as maze_file:
+                        if maze_file and not maze:
+                            maze = Maze(maze_file=maze_file, screen=screen)
+                            render_maze(maze=maze, border=window_border)
 
         clock.tick(60)
 

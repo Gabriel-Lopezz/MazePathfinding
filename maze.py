@@ -36,6 +36,7 @@ class Maze:
 
         for row in self.maze:
             for block in row:
+                block.draw()
                 blocks.append(block.rect)
 
         pygame.display.update(blocks)
@@ -58,11 +59,11 @@ class Maze:
         starts = 0
         ends = 0
 
-        row_ind = col_ind = 0
+        row_ind = 0
 
         for row in reader:
             maze_row = []
-
+            col_ind = 0
             for block_str in row:
                 block_length = MAZE_SIZE / rows
                 block_char = block_str.strip()
@@ -91,12 +92,28 @@ class Maze:
 
                 cur_block = Block(size=block_length, state=block_state, row=row_ind, col=col_ind, screen=self.screen)
                 maze_row.append(cur_block)
+                col_ind +=1
             
             maze.append(maze_row)
-        
+            row_ind+=1
         file.close() # Close the file
         
 
         print("Time taken", time.time() - start)
 
         return maze
+
+# ========To Test (Idk how to make it work)========#
+# pygame.init()
+# screen = pygame.display.set_mode((MAZE_SIZE,MAZE_SIZE))
+# screen.fill(RED)
+# with open("PreMade_Mazes/10x10_Maze1.csv", "r") as f:
+#     maze = Maze(f, screen)
+# maze.draw()
+#
+# while True:
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             pygame.quit()
+#             exit()
+#     pygame.display.update()

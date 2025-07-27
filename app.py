@@ -27,6 +27,10 @@ def prompt_file():
 def create_maze(file):
     return Maze()
 
+def render_maze(maze: Maze, border: list[dict]):
+    [pygame.draw.line(**line) for line in border]
+    maze.draw()
+    pygame.display.flip()
 
 def main():
     pygame.init()
@@ -48,6 +52,17 @@ def main():
     upload_button = Button(screen, pygame.Color(LIGHT_SKY_BLUE),pygame.Color(WHITE), pygame.Rect(150, 160, 175, 50), "Upload Maze")
     preload_button = Button(screen, pygame.Color(LIGHT_SKY_BLUE),pygame.Color(WHITE), pygame.Rect(150, 240, 175, 50), "Use Pre-made")
 
+    '''
+    Setup GUI elements. Rendering new objects will be event-based, not per-frame
+    '''
+
+    screen.fill((255, 255, 255)) # Background
+
+    upload_button.draw() # maze load button
+    preload_button.draw() # pre-made maze load button
+
+    pygame.display.flip()
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -56,24 +71,14 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if upload_button.rect.collidepoint(event.pos):
                     maze_file = prompt_file()
-                    if (maze_file): maze = Maze(maze_file=maze_file, screen=screen)
+                    if maze_file and not maze: 
+                        maze = Maze(maze_file=maze_file, screen=screen)
+                        render_maze(maze=maze, border=window_border)
                 if preload_button.rect.collidepoint(event.pos):
                     maze_file = prompt_file()
-                    if (maze_file): maze = Maze(maze_file=maze_file, screen=screen)
-
-
-        # Object drawing and rendering
-        
-        screen.fill((255, 255, 255)) # Background
-
-        upload_button.draw() # maze load button
-        preload_button.draw() # pre-made maze load button
-
-        # Draw maze window border and maze
-        [pygame.draw.line(**line) for line in window_border]
-        if maze: maze.draw()
-        
-        pygame.display.flip()
+                    if maze_file and not maze: 
+                        maze = Maze(maze_file=maze_file, screen=screen)
+                        render_maze(maze=maze, border=window_border)
 
         clock.tick(60)
 

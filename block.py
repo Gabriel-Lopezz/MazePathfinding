@@ -18,37 +18,41 @@ class Block:
         self.col = col
         self.screen = screen
 
-    def set_state(self, state: BlockState|int):
-        self.state = state
+        self.x, self.y = self.col * self.size, self.row * self.size
+        self.set_color(state=state)
+        
+        self.rect=pygame.Rect(self.x, self.y, self.size, self.size)
+
+
+    def set_color(self, state: BlockState|int):
+        match BlockState(self.state):
+            case BlockState.OPEN:
+                self.color = PATH_COLOR
+
+            case BlockState.WALL:
+                self.color = WALL_COLOR
+
+            case BlockState.INTERSECTION:
+                self.color = INTERSECTION_COLOR
+
+            case BlockState.START:
+                self.color = START_COLOR
+
+            case BlockState.END:
+                self.color = END_COLOR
+
+            case BlockState.EXPLORED:
+                self.color = EXPLORED_COLOR
+
+            case _: # non-existent case
+                raise Exception(f"Could not resolve Block State {self.state}. Block: row {self.row}, col {self.col}")
 
     """
         Draws the block based on its state
     """
     def draw(self):
-        x, y = self.col * self.size, self.row * self.size
-        match BlockState(self.state):
-            case BlockState.OPEN:
-                block_color = PATH_COLOR
-
-            case BlockState.WALL:
-                block_color = WALL_COLOR
-
-            case BlockState.INTERSECTION:
-                block_color = INTERSECTION_COLOR
-
-            case BlockState.START:
-                block_color = START_COLOR
-
-            case BlockState.END:
-                block_color = END_COLOR
-
-            case BlockState.EXPLORED:
-                block_color = EXPLORED_COLOR
-
-            case _: # non-existent case
-                raise Exception(f"Could not resolve Block State {self.state}. Block: row {self.row}, col {self.col}")
-
-        pygame.draw.rect(surface=self.screen, color=block_color, rect=pygame.Rect(x, y, self.size, self.size))
+        self.set_color(self.state)
+        pygame.draw.rect(surface=self.screen, color=self.color, rect=self.rect)
 
 
 # ========To Test ========#

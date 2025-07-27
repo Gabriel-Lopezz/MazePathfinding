@@ -3,6 +3,12 @@ WINDOW_SIZE = 900
 MAZE_SIZE = 500
 NUM_FONT = WINDOW_SIZE // 10
 
+#For mazes of size 1000x1000
+WINDOW_SIZE_LARGE_HEIGHT = 1000
+WINDOW_SIZE_LARGE_WIDTH = 1500
+MAZE_SIZE_LARGE = 1000
+
+
 #==COLORS==# if you change a color, comment what color it is
 BLACK = (0, 0, 0)
 LIGHT_GREY = (211,211,211)

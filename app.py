@@ -6,7 +6,13 @@ from button import Button
 from maze import Maze
 from constants import *
 from block import Block, BlockState
+from enum import Enum
 
+class AppState(Enum):
+    MAZE_NOT_LOADED = 0
+    MAZE_LOADED = 1
+    TRAVERSING = 2
+    FINISHED = 3
 '''
     Prompts the user's file system dialog box and returns the file data
 '''
@@ -64,21 +70,24 @@ def main():
     pygame.display.flip()
 
     while running:
+        maze_loaded = False
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 running = False
-
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if upload_button.rect.collidepoint(event.pos):
                     maze_file = prompt_file()
                     if maze_file and not maze: 
                         maze = Maze(maze_file=maze_file, screen=screen)
                         render_maze(maze=maze, border=window_border)
+                        maze_loaded = True
                 if preload_button.rect.collidepoint(event.pos):
                     with open("PreMade_Mazes/10x10_Maze1.csv", "r") as maze_file:
                         if maze_file and not maze:
                             maze = Maze(maze_file=maze_file, screen=screen)
                             render_maze(maze=maze, border=window_border)
+                            maze_loaded = True
 
         clock.tick(60)
 

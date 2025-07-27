@@ -45,7 +45,7 @@ def main():
         { "surface": screen, "color": pygame.Color(0, 0, 0), "start_pos": (0, MAZE_SIZE), "end_pos": (MAZE_SIZE + 2, MAZE_SIZE), "width": 5 }
     ]
 
-    load_button = Button(screen, pygame.Color(BLACK), pygame.Rect(200, 200, 100, 50), "Test Text")
+    load_button = Button(screen, pygame.Color(BLACK),pygame.Color(RED), pygame.Rect(200, 200, 100, 50), "Test Text")
 
     while running:
         for event in pygame.event.get():

@@ -30,46 +30,40 @@ class Maze:
 
     def draw(self):
         '''
-        Draws the maze blocks using 'dirty rectangles' technique. Adds blocks' rects to a list; the list is used to update only necessary portions of the screen.
+        Loads all the maze blocks into the screen buffer. Renders the changes after loading all blocks
         '''
-        blocks = []
 
         for row in self.maze:
             for block in row:
                 block.draw()
-                blocks.append(block.rect)
-
-        pygame.display.update(blocks)
+        
+        pygame.display.flip()
 
     def maze_from_file(self, file: _io.TextIOWrapper) -> list[list[Block]]:
         start = time.time()
-
         maze = []
 
-        rows = sum(1 for line in file)
-        file.seek(0) # Reset file handle to start
+        lines = list(file)
+        rows = len(lines)
         
-        reader = csv.reader(file)
+        reader = csv.reader(lines)
         cols = len(next(reader))
 
-        # Reset CSV reader
-        file.seek(0)
-        reader = csv.reader(file)
-
+        if rows < 2 or cols < 2 or rows != cols:
+            raise Exception("Maze must be square, at least 2x2. This maze has rows:{rows} cols:{cols}")
+        
+        block_length = MAZE_SIZE / rows
+        
         starts = 0
         ends = 0
-
-        row_ind = 0
-
-        for row in reader:
+        
+        for row_ind, row in enumerate(csv.reader(lines)):
             maze_row = []
-            col_ind = 0
-            for block_str in row:
-                block_length = MAZE_SIZE / rows
-                block_char = block_str.strip()
-                block_state = None
 
-                match(block_char.lower()):
+            for col_ind, block_str in enumerate(row):
+                block_char = block_str.strip().lower()
+
+                match (block_char):
                     case ".":
                         block_state = BlockState.OPEN
 
@@ -79,29 +73,26 @@ class Maze:
                     case "s":
                         block_state = BlockState.START
                         starts += 1
-
+                        
                     case "e":
                         block_state = BlockState.END
                         ends += 1
-
-                    case _: # non-existent case
-                        raise Exception(f"Could not resolve Block character {block_char}: row {row_ind}, col {col_ind}")
+                        
+                    case _:
+                        raise Exception(f"Unknown block char '{block_char}': row {row_ind} col {col_ind}")
                 
-                if (starts > 1 or ends > 1):
-                    raise Exception(f"Could not resolve Maze File. More than one start/end found: row {row_ind}, col {col_ind}")
-
-                cur_block = Block(size=block_length, state=block_state, row=row_ind, col=col_ind, screen=self.screen)
+                cur_block = Block(block_length, block_state, row_ind, col_ind, self.screen)
                 maze_row.append(cur_block)
-                col_ind +=1
             
             maze.append(maze_row)
-            row_ind+=1
-        file.close() # Close the file
         
-
-        print("Time taken", time.time() - start)
+        if starts != 1 or ends != 1:
+            raise Exception(f"Exactly one start and end required. This maze has starts:{starts}, ends:{ends}.")
+        
+        print(time.time() - start)
 
         return maze
+
 
 # ========To Test (Idk how to make it work)========#
 # pygame.init()

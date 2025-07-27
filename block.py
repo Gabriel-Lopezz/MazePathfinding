@@ -21,7 +21,7 @@ class Block:
         self.x, self.y = self.col * self.size, self.row * self.size
         self.set_color(state=state)
         
-        self.rect=pygame.Rect(self.x, self.y, self.size, self.size)
+        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
 
     def set_color(self, state: BlockState|int):

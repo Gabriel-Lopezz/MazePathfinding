@@ -74,7 +74,6 @@ def main():
                     if maze_file and not maze: 
                         maze = Maze(maze_file=maze_file, screen=screen)
                         render_maze(maze=maze, border=window_border)
-                        maze.draw()
                 if preload_button.rect.collidepoint(event.pos):
                     with open("PreMade_Mazes/10x10_Maze1.csv", "r") as maze_file:
                         if maze_file and not maze:

@@ -4,18 +4,6 @@ from collections import deque
 from maze import Maze
 from block import BlockState
 
-# def get_adjacent(x,y,col,rows, maze_array):
-#     dx = [1, -1, 0, 0] # right, left
-#     dy = [0, 0, 1, -1] # down, up
-#     adjacents = set()
-#     for i in range(4):
-#         nx = x + dx[i]
-#         ny = y + dy[i]
-#         if nx < 0 or ny < 0 or nx >= col or ny >= rows or maze_array[ny][nx].state == BlockState.WALL:
-#           continue
-#         adjacents.add((nx,ny))
-#     return adjacents
-
 def BFS_for_intersections(start_point : tuple , maze_obj : Maze):
     '''
     Looks for all the intersection points of the maze to be added to the adjacency list
@@ -36,7 +24,7 @@ def BFS_for_intersections(start_point : tuple , maze_obj : Maze):
     while q.count !=0:
         ux, uy = q.popleft()
         neighbors = deque() # empty queue
-        for vx,vy in maze_obj.get_adjacent(ux,uy,columns,rows):
+        for vx,vy in maze_obj.get_adjacent(ux,uy):
           if not visited[vy][vx]:
             visited[vy][vx] = True
 

@@ -49,25 +49,28 @@ def create_buttons(screen):
 
     # ===Buttons inside of the Maze Window===#
     upload_button = Button(
-        screen,
-        pygame.Color(LIGHT_SKY_BLUE),
-        pygame.Color(WHITE),
-        pygame.Rect(maze_window_center, MAZE_SIZE*0.2, button_width, button_height),
-        "Upload Maze")
+        screen = screen,
+        bg_color = pygame.Color(LIGHT_SKY_BLUE),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(maze_window_center, MAZE_SIZE*0.2, button_width, button_height),
+        text = "Upload Maze")
     preload_button = Button(
-        screen,
-        pygame.Color(LIGHT_SKY_BLUE),
-        pygame.Color(WHITE),
-        pygame.Rect(maze_window_center, (MAZE_SIZE*0.2) + button_height + button_spacing, button_width, button_height),
-        "Use Pre-made")
+        screen = screen,
+        bg_color = pygame.Color(LIGHT_SKY_BLUE),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(maze_window_center, (MAZE_SIZE*0.2) + button_height + button_spacing, button_width, button_height),
+        text = "Use Pre-made")
     #===Buttons outside of the Maze Window===#
     # unloads maze to show load options again
     unload_button = Button(
-        screen,
-        pygame.Color(RED),
-        pygame.Color(WHITE),
-        pygame.Rect(MAZE_SIZE, MAZE_SIZE, button_width, button_height),
-        "Unload Maze")
+        screen = screen,
+        bg_color = pygame.Color(RED),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(MAZE_SIZE, MAZE_SIZE, button_width, button_height),
+        text = "Unload Maze")
 
 
     return upload_button,preload_button,unload_button

@@ -17,3 +17,11 @@ class Button:
         pygame.draw.rect(self.screen, self.bg_color, self.rect)
         
         self.screen.blit(self.text_surface, self.text_rect)
+    '''Makes the button color lighter for a bit, simulating a button being clicked'''
+    def clicked(self):
+        dimmed_color = tuple(max(c-50,0) for c in self.bg_color)
+        pygame.draw.rect(self.screen, dimmed_color, self.rect)
+        self.screen.blit(self.text_surface, self.text_rect)
+        pygame.time.delay(100)
+        pygame.draw.rect(self.screen, self.bg_color, self.rect)
+        self.screen.blit(self.text_surface, self.text_rect)

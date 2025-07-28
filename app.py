@@ -145,13 +145,13 @@ def main():
                         app_state = AppState.MAZE_NOT_LOADED
         #=== Section for Drawing Appropriate Visuals for the Current State of the Window === #
         if app_state == AppState.MAZE_NOT_LOADED:
-            for button in start_screen_visuals:
-                button.draw()
+            for visual in start_screen_visuals:
+                visual.draw()
             [pygame.draw.line(**line) for line in window_border]
             pygame.display.flip()
         elif app_state == AppState.MAZE_LOADED or app_state == AppState.FINISHED:
-            for button in in_progress_visuals:
-                button.draw()
+            for visual in in_progress_visuals:
+                visual.draw()
             pygame.display.flip()
         clock.tick(60)
 

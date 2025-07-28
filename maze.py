@@ -14,6 +14,8 @@ class Maze:
         self.end_coord = (-1,-1)
         self.block_length = 0
         self.maze_array = self.maze_from_file(maze_file)
+        self.cols = 0
+        self.rows = 0
             
 
     def create_maze(maze_file: _io.TextIOWrapper, screen: pygame.Surface):
@@ -46,15 +48,15 @@ class Maze:
         maze = []
 
         lines = list(file)
-        rows = len(lines)
+        self.rows = len(lines)
         
         reader = csv.reader(lines)
-        cols = len(next(reader))
+        self.cols = len(next(reader))
 
-        if rows < 2 or cols < 2 or rows != cols:
-            raise Exception(f"Maze must be square, at least 2x2. This maze has rows:{rows} cols:{cols}")
+        if self.rows < 2 or self.cols < 2 or self.rows != self.cols:
+            raise Exception(f"Maze must be square, at least 2x2. This maze has rows:{self.rows} cols:{self.cols}")
         
-        self.block_length = MAZE_SIZE / rows
+        self.block_length = MAZE_SIZE / self.rows
         
         starts = 0
         ends = 0

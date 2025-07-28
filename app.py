@@ -143,6 +143,7 @@ def main():
                         maze.clear()
                         screen.fill(WHITE)
                         app_state = AppState.MAZE_NOT_LOADED
+        #=== Section for Drawing Appropriate Visuals for the Current State of the Window === #
         if app_state == AppState.MAZE_NOT_LOADED:
             for button in start_screen_visuals:
                 button.draw()

@@ -20,7 +20,6 @@ class Maze:
             
 
     def create_maze(maze_file: _io.TextIOWrapper, screen: pygame.Surface):
-        
         try:
             new_maze = Maze(maze_file=maze_file, screen=screen)
         except Exception as maze_exception:
@@ -32,15 +31,21 @@ class Maze:
         '''
         Loads all the maze blocks into the screen buffer. Renders the changes after loading all blocks
         '''
-
         for row in self.maze:
             for block in row:
                 block.draw()
         
         pygame.display.flip()
+    
+    def clear(self):
+        '''
+        Clears maze data, draws a white square to cover Maze window, and updates display
+        '''
+        self.maze = None
+        pygame.draw.rect(surface=self.screen, color=WHITE, rect=(0, 0, MAZE_SIZE, MAZE_SIZE))
+        pygame.display.flip()
 
     def maze_from_file(self, file: _io.TextIOWrapper) -> list[list[Block]]:
-        start = time.time()
         maze = []
 
         lines = list(file)
@@ -77,7 +82,7 @@ class Maze:
                     case "e":
                         block_state = BlockState.END
                         ends += 1
-                        
+
                     case _:
                         raise Exception(f"Unknown block char '{block_char}': row {row_ind} col {col_ind}")
                 
@@ -88,8 +93,6 @@ class Maze:
         
         if starts != 1 or ends != 1:
             raise Exception(f"Exactly one start and end required. This maze has starts:{starts}, ends:{ends}.")
-        
-        print(time.time() - start)
 
         return maze
 

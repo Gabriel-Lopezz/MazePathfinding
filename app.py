@@ -116,18 +116,27 @@ def main():
                     # Initial state of the program, load buttons are in maze area
                     if upload_button.rect.collidepoint(event.pos):
                         maze_file = prompt_file()
-                        if maze_file and not maze:
+                        if maze_file:
                             maze = Maze(maze_file=maze_file, screen=screen)
                             render_maze(maze=maze, border=window_border)
                             app_state = AppState.MAZE_LOADED
-                    if preload_button.rect.collidepoint(event.pos):
+
+                    elif preload_button.rect.collidepoint(event.pos):
                         with open("PreMade_Mazes/10x10_Maze1.csv", "r") as maze_file:
-                            if maze_file and not maze:
+                            if maze_file:
                                 maze = Maze(maze_file=maze_file, screen=screen)
                                 render_maze(maze=maze, border=window_border)
                                 app_state = AppState.MAZE_LOADED
+                
+                elif app_state == AppState.MAZE_LOADED:
+                    if unload_button.rect.collidepoint(event.pos):
+                        maze.clear()
+                        [pygame.draw.line(**line) for line in window_border]
+                        pygame.display.flip()
+
                 elif app_state == AppState.MAZE_LOADED:
                     continue
+                
                 elif app_state == AppState.FINISHED:
                     if preload_button.rect.collidepoint(event.pos):
                         maze = None

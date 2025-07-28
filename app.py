@@ -132,6 +132,9 @@ def main():
                                 app_state = AppState.MAZE_LOADED
 
                 elif app_state == AppState.MAZE_LOADED:
+                    x, y = event.pos
+                    maze.click_box(x,y,event.button)
+
                     # for clearing the maze
                     if unload_button.rect.collidepoint(event.pos):
                         maze.clear()

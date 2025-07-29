@@ -6,15 +6,15 @@ class AdjacencyList:
         each intersection will be labled based on a vertex number, or its ID
         the coord_to_verNum dictionary will store the vertex # as a value, with the key being the ID
         '''
-        self.graph = dict(list[int])
-        self.vertex_num = 0
+        self.graph : dict[int, list[int,int]] = {}
+        self.vertex_num : int = 0
         # "Maps the vertex(intersection) to it's coordinate from the maze"
-        self.intersection_coords = set() # stores what coords have been saved
-        self.coord_to_verNum = dict(tuple) # key: coordinate (y,x), value: vertex #
+        self.intersection_coords : set[tuple] = set() # stores what coords have been saved
+        self.coord_to_verNum : dict[tuple,int] = {} # key: coordinate (y,x), value: vertex #
+        self.verNum_to_coord : dict[int,tuple] = {} # key: vertex #, value: coordinate (y,x)
     # Getters
     def get_vertex(self, coord):
-        x, y = coord
-        return self.coord_to_verNum.get((x, y))
+        return self.coord_to_verNum.get(coord)
     def get_vertices(self):
         """returns number of vertices"""
         return len(self.graph)
@@ -23,11 +23,13 @@ class AdjacencyList:
         if _from not in self.intersection_coords:
             self.intersection_coords.add(_from)
             self.coord_to_verNum[_from] = self.vertex_num
+            self.verNum_to_coord[self.vertex_num] = _from
             self.graph[self.vertex_num] = []
             self.vertex_num += 1
         if _to not in self.intersection_coords:
             self.intersection_coords.add(_to)
             self.coord_to_verNum[_to] = self.vertex_num
+            self.verNum_to_coord[self.vertex_num] = _to
             self.graph[self.vertex_num] = []
             self.vertex_num += 1
         from_vertex = self.coord_to_verNum[_from]

@@ -6,7 +6,7 @@ class AdjacencyList:
         each intersection will be labled based on a vertex number, or its ID
         the coord_to_verNum dictionary will store the vertex # as a value, with the key being the ID
         '''
-        self.graph : dict[int, list[int,int]] = {}
+        self.graph : dict[int, list[tuple[int,int]]] = {}
         self.vertex_num : int = 0
         # "Maps the vertex(intersection) to it's coordinate from the maze"
         self.intersection_coords : set[tuple] = set() # stores what coords have been saved

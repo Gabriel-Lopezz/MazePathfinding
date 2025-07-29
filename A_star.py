@@ -1,5 +1,5 @@
 import heapq
-from adjacencyList import AdjacencyList
+from AdjacencyList import AdjacencyList
 from block import Block
 
 def heuristic(current: tuple[int, int], target: tuple[int, int], min_dist: int ):

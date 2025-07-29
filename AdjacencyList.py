@@ -18,7 +18,7 @@ class AdjacencyList:
     def get_vertices(self):
         """returns number of vertices"""
         return len(self.graph)
-    def add_vertex(self, _from:tuple, _to:tuple, _weight):
+    def add_connection(self, _from:tuple, _to:tuple, _weight):
         # Checks if the from and to coordinates have already been added to the list
         if _from not in self.intersection_coords:
             self.intersection_coords.add(_from)

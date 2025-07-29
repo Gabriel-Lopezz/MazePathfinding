@@ -1,6 +1,5 @@
 import heapq
-from AdjacencyList import AdjacencyList
-from block import Block
+from block import Block, BlockState
 
 def heuristic(current: tuple[int, int], target: tuple[int, int], min_dist: int ):
     '''
@@ -12,9 +11,29 @@ def heuristic(current: tuple[int, int], target: tuple[int, int], min_dist: int )
 
     return min_dist * (dx + dy)
 
-def a_star(adj_list: AdjacencyList):
-    visited = {}
-    distances = []
+def neighbors(grid: list[list], source: tuple[int, int]):
+    pass # To be implemented
 
-    for intersection in adj_list.graph.keys:
-        pass #Continue logic
+def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int, int]):
+    # Dictionary initializer of format: `(coord.x, coord.y): -1`
+    distances = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
+
+    endFound = False
+
+    # min heap for available routes, first element based ordering 
+    routes = [(0, start)]
+
+    while len(routes) > 0:
+        curNode, curDist = heapq.heappop(distances)
+
+        if (curDist != 1 and curDist >= distances[curNode]):
+            continue
+        
+        for neighbor, nDist in neighbors(grid=maze_grid, source=curNode):
+            base_dist = curDist + nDist
+            h = heuristic(current=curNode, target=end, min_dist=1)
+            expected_dist = base_dist + h
+            
+            if expected_dist < distances[curNode] or distances[curNode] == -1:
+                distances[curNode] = expected_dist
+                heapq.heappush((base_dist + heuristic, neighbor))

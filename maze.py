@@ -105,6 +105,19 @@ class Maze:
             raise Exception(f"No more than 1 start point or end point. This maze has starts:{starts}, ends:{ends}.")
         return maze
 
+    def get_adjacent(self, x, y):
+        dx = [1, -1, 0, 0]  # right, left
+        dy = [0, 0, 1, -1]  # down, up
+        adjacents = set()
+        for i in range(4):
+            nx = x + dx[i]
+            ny = y + dy[i]
+            if (nx < 0 or ny < 0
+                or nx >= self.cols or ny >= self.rows
+                or self.maze_array[ny][nx].state == BlockState.WALL):
+                continue
+            adjacents.add((nx, ny))
+        return adjacents
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''
         if not (0 <= x < MAZE_SIZE and 0 <= y < MAZE_SIZE):

@@ -4,7 +4,7 @@ from tkinter import filedialog
 import sys
 from button import Button
 from maze import Maze
-from constants import *
+from config import *
 from block import Block, BlockState
 from enum import Enum
 
@@ -55,6 +55,7 @@ def create_buttons(screen):
         font_size = NUM_FONT,
         rect = pygame.Rect(maze_window_center, MAZE_SIZE*0.2, button_width, button_height),
         text = "Upload Maze")
+    
     preload_button = Button(
         screen = screen,
         bg_color = pygame.Color(LIGHT_SKY_BLUE),
@@ -62,6 +63,7 @@ def create_buttons(screen):
         font_size = NUM_FONT,
         rect = pygame.Rect(maze_window_center, (MAZE_SIZE*0.2) + button_height + button_spacing, button_width, button_height),
         text = "Use Pre-made")
+    
     #===Buttons outside of the Maze Window===#
     # unloads maze to show load options again
     unload_button = Button(
@@ -95,7 +97,7 @@ def main():
 
     upload_button, preload_button, unload_button = create_buttons(screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
-    start_screen_visuals = [upload_button,preload_button]
+    start_screen_visuals = [upload_button, preload_button]
     in_progress_visuals = [unload_button]
     '''
     Setup GUI elements. Rendering new objects will be event-based, not per-frame
@@ -123,7 +125,6 @@ def main():
                             maze = Maze(maze_file=maze_file, screen=screen)
                             render_maze(maze=maze, border=window_border)
                             app_state = AppState.MAZE_LOADED
-
                     elif preload_button.rect.collidepoint(event.pos):
                         with open("PreMade_Mazes/10x10_Maze1.csv", "r") as maze_file:
                             if maze_file:
@@ -134,28 +135,30 @@ def main():
                 elif app_state == AppState.MAZE_LOADED:
                     x, y = event.pos
                     maze.click_box(x,y,event.button)
-
                     # for clearing the maze
                     if unload_button.rect.collidepoint(event.pos):
                         maze.clear()
                         screen.fill(WHITE)
-                        app_state = AppState.MAZE_NOT_LOADED
+                        app_state = AppState.MAZE_NOT_LOADED  
                 elif app_state == AppState.FINISHED:
                     # for clearing the maze
                     if unload_button.rect.collidepoint(event.pos):
                         maze.clear()
                         screen.fill(WHITE)
                         app_state = AppState.MAZE_NOT_LOADED
+
         #=== Section for Drawing Appropriate Visuals for the Current State of the Window === #
         if app_state == AppState.MAZE_NOT_LOADED:
             for visual in start_screen_visuals:
                 visual.draw()
             [pygame.draw.line(**line) for line in window_border]
             pygame.display.flip()
+
         elif app_state == AppState.MAZE_LOADED or app_state == AppState.FINISHED:
             for visual in in_progress_visuals:
                 visual.draw()
             pygame.display.flip()
+        
         clock.tick(60)
 
     pygame.quit()

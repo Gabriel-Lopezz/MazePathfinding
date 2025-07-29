@@ -1,5 +1,5 @@
 import pygame
-from constants import *
+from config import *
 from enum import Enum
 
 class BlockState(Enum):

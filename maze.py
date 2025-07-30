@@ -124,20 +124,29 @@ class Maze:
                 continue
             adjacents.add((nx, ny))
         return adjacents
-    # A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
-    def is_turn(self, center: tuple,  adjacent1: tuple, adjacent2: tuple):
-        if adjacent1 == adjacent2: # Safeguard: Same coordinate inserted is NOT a turn
+
+
+    '''
+        a valid graph point is either a start/end point, intersection, turn, or dead-end
+        # A coordinate has an intersection if it has more than 3 neighbors 
+        A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
+    '''
+    def is_valid_graph_point(self, center: tuple, adjacents : list[tuple[int,int]]):
+        x, y = center
+        if self.maze_array[y][x] == BlockState.START or self.maze_array[y][x] == BlockState.END: # coordinate is a start/end point
+            return True
+        if len(adjacents) >= 3 or len(adjacents) == 1: # coordinate (x,y) is an intersection or a deadend
+            return True
+        adjacent1 ,adjacent2 = adjacents[0],adjacents[1]
+        if adjacent1 == adjacent2: # guard against duplicate adjacent points
             return False
-        x,y = center
         ux, uy = adjacent1
         vx, vy = adjacent2
-        direction1 = (ux - x,uy-y)
-        direction2 = (vx - x,vy-y)
+        direction1 = (ux - x, uy - y)
+        direction2 = (vx - x, vy - y)
         # if both directions added up equals to (0,0), that means they are going in a straight line
         # NOTE, this will get messed up if the two adjacent coordinates pased in ARE THE SAME
-        return direction1+direction2 != (0,0)
-    def is_intersection(self, adjacents : list[tuple[int,int]]):
-        return len(adjacents) >=3
+        return direction1 + direction2 != (0, 0)
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''
 

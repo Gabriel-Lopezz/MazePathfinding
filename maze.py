@@ -125,7 +125,9 @@ class Maze:
             adjacents.add((nx, ny))
         return adjacents
     # A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
-    def is_turn(self, center: tuple,  adjacent1: tuple, adjacent2: tuple) -> bool:
+    def is_turn(self, center: tuple,  adjacent1: tuple, adjacent2: tuple):
+        if adjacent1 == adjacent2: # Safeguard: Same coordinate inserted is NOT a turn
+            return False
         x,y = center
         ux, uy = adjacent1
         vx, vy = adjacent2
@@ -134,7 +136,8 @@ class Maze:
         # if both directions added up equals to (0,0), that means they are going in a straight line
         # NOTE, this will get messed up if the two adjacent coordinates pased in ARE THE SAME
         return direction1+direction2 != (0,0)
-    
+    def is_intersection(self, adjacents : list[tuple[int,int]]):
+        return len(adjacents) >=3
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''
 

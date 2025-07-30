@@ -1,6 +1,8 @@
 import csv
 import pygame
 import _io
+
+from AdjacencyList import AdjacencyList
 from config import *
 from block import Block, BlockState
 import time
@@ -19,8 +21,8 @@ class Maze:
         self.rows = 0
 
         self.maze_array = self.maze_from_file(maze_file)
-
-        self.intersections = None
+        # Graph points include: intersections, turns, dead ends, & start/end points
+        self.graph_points = AdjacencyList()
 
     def create_maze(maze_file: _io.TextIOWrapper, screen: pygame.Surface):
         try:
@@ -123,10 +125,15 @@ class Maze:
             adjacents.add((nx, ny))
         return adjacents
     # A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
-    def is_turn(self,  neighbor1: tuple, neighbor2: tuple) -> bool:
-        dx, dy = neighbor1
-        vx, vy = neighbor2
-        return (dx != vx and dy != vy)
+    def is_turn(self, center: tuple,  adjacent1: tuple, adjacent2: tuple) -> bool:
+        x,y = center
+        ux, uy = adjacent1
+        vx, vy = adjacent2
+        direction1 = (ux - x,uy-y)
+        direction2 = (vx - x,vy-y)
+        # if both directions added up equals to (0,0), that means they are going in a straight line
+        # NOTE, this will get messed up if the two adjacent coordinates pased in ARE THE SAME
+        return direction1+direction2 != (0,0)
     
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''

@@ -8,6 +8,12 @@ WINDOW_SIZE_LARGE_HEIGHT = 1000
 WINDOW_SIZE_LARGE_WIDTH = 1500
 MAZE_SIZE_LARGE = 1000
 
+# re-sizing tests:
+RES_WIDTH = 1000
+RES_HEIGHT = 700
+MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 100  # center and shift 50px left
+MAZE_PADDING_TOP = (RES_HEIGHT - MAZE_SIZE) // 2       # vertically centered
+
 
 #==COLORS==# if you change a color, comment what color it is
 BLACK = (0, 0, 0)

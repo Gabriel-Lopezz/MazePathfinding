@@ -50,7 +50,11 @@ class Maze:
         Clears maze data, draws a white square to cover Maze window, and updates display
         '''
         self.maze_array = None
-        pygame.draw.rect(surface=self.screen, color=WHITE, rect=(0, 0, MAZE_SIZE, MAZE_SIZE))
+        pygame.draw.rect(
+            surface=self.screen,
+            color=WHITE,
+            rect=(MAZE_PADDING_LEFT, MAZE_PADDING_TOP, MAZE_SIZE, MAZE_SIZE)
+        )
         pygame.display.flip()
 
     def maze_from_file(self, file: _io.TextIOWrapper) -> list[list[Block]]:
@@ -118,14 +122,31 @@ class Maze:
                 continue
             adjacents.add((nx, ny))
         return adjacents
+    
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''
-        if not (0 <= x < MAZE_SIZE and 0 <= y < MAZE_SIZE):
+
+        # if you load a maze, then unload it, then you click on the empty area where the maze was, 
+        # the program crashes without this next if statement - Andres
+        if self.maze_array is None:
+            return
+
+        # the following gives us the proper padded coordinates:
+        x -= MAZE_PADDING_LEFT
+        y -= MAZE_PADDING_TOP
+
+        if not (0 <= x < self.cols * self.block_length and 
+                0 <= y < self.rows * self.block_length):
             return
         
         # get the block object from the respective coordinate
         maze_x = int(x // self.block_length)
         maze_y = int(y // self.block_length)
+
+        if not (0 <= maze_x < self.cols and 
+                0 <= maze_y < self.rows):
+            return
+
         clicked_box = self.maze_array[maze_y][maze_x]
 
         if clicked_box.state == BlockState.WALL:
@@ -141,6 +162,7 @@ class Maze:
             clicked_box.state = BlockState.START
             clicked_box.draw()
             self.start_coord = (maze_y, maze_x)
+
         elif event_type == 3:  # right click
             if self.end_coord != (-1, 1):
                 old_y, old_x = self.end_coord

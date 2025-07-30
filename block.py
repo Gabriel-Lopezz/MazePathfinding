@@ -18,7 +18,8 @@ class Block:
         self.col = col
         self.screen = screen
 
-        self.x, self.y = self.col * self.size, self.row * self.size
+        self.x = MAZE_PADDING_LEFT + self.col * self.size
+        self.y = MAZE_PADDING_TOP + self.row * self.size
         self.set_color(state=state)
         
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)

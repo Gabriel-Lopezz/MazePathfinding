@@ -108,7 +108,7 @@ class Maze:
         if starts > 1 or ends > 1:
             raise Exception(f"No more than 1 start point or end point. This maze has starts:{starts}, ends:{ends}.")
         return maze
-
+    # returns in (x,y) format
     def get_adjacent(self, x, y):
         dx = [1, -1, 0, 0]  # right, left
         dy = [0, 0, 1, -1]  # down, up
@@ -122,6 +122,11 @@ class Maze:
                 continue
             adjacents.add((nx, ny))
         return adjacents
+    # A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
+    def is_turn(self,  neighbor1: tuple, neighbor2: tuple) -> bool:
+        dx, dy = neighbor1
+        vx, vy = neighbor2
+        return (dx != vx and dy != vy)
     
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''

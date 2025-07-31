@@ -118,6 +118,7 @@ class Maze:
         for i in range(4):
             nx = x + dx[i]
             ny = y + dy[i]
+            # if the "adjacent" node is out of bounds or a wall, ignore this nx, ny
             if (nx < 0 or ny < 0
                 or nx >= self.cols or ny >= self.rows
                 or self.maze_array[ny][nx].state == BlockState.WALL):
@@ -147,6 +148,38 @@ class Maze:
         # if both directions added up equals to (0,0), that means they are going in a straight line
         # NOTE, this will get messed up if the two adjacent coordinates pased in ARE THE SAME
         return direction1 + direction2 != (0, 0)
+
+    """
+    # After some thought, and based on what counts as graph points now, a "walk" the corridor approach seems better,
+    # where the algorithm will walk a path in a single direction until it reaches an valid graph point
+    """
+
+    def walk_corridors(self,start_point: tuple):
+        '''
+            Looks for all the intersection points of the maze to be added to the adjacency list
+            Done by walking through every corridor of the maze in a singular direction until it hits an intersection
+        '''
+        origin_x, origin_y = start_point
+        for next_x, next_y in self.get_adjacent(origin_x,origin_y):
+            # directional difference bteween the adjacent x/y and start x/y
+            dx, dy = next_x - origin_x, next_y - origin_y # (0,-1) up | (0, 1) down |(-1,0) left |(1,0) right |
+            distance = 1
+            current_x, current_y = next_x, next_y
+            while True:
+                # to check if it is a valid graph point
+                current_adjacents = self.get_adjacent(current_x,current_y)
+
+                # Moves through a corridor in the same direction
+                next_x, next_y = current_x + dx, current_y + dy
+                # if the adjacent coordiante is out of bounds or a wall, break while loop
+                if (next_x < 0 or next_y < 0
+                        or next_x >= self.cols or next_y >= self.rows
+                        or self.maze_array[next_y][next_x].state == BlockState.WALL):
+                    break
+                current_x, current_y = next_x, next_y
+                distance += 1
+
+    # == Visuals == #
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''
 

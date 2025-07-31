@@ -4,6 +4,7 @@ import _io
 
 from AdjacencyList import AdjacencyList
 from config import *
+from collections import deque
 from block import Block, BlockState
 import time
 
@@ -111,10 +112,12 @@ class Maze:
             raise Exception(f"No more than 1 start point or end point. This maze has starts:{starts}, ends:{ends}.")
         return maze
     # returns in (x,y) format
-    def get_adjacent(self, x, y):
+    def get_adjacent(self, start_point: tuple):
+        x,y = start_point
+        # 0s are there so only either the x or y coordinate is changed in one loop
         dx = [1, -1, 0, 0]  # right, left
         dy = [0, 0, 1, -1]  # down, up
-        adjacents = set()
+        adjacents = list()
         for i in range(4):
             nx = x + dx[i]
             ny = y + dy[i]
@@ -123,16 +126,17 @@ class Maze:
                 or nx >= self.cols or ny >= self.rows
                 or self.maze_array[ny][nx].state == BlockState.WALL):
                 continue
-            adjacents.add((nx, ny))
+            adjacents.append((nx, ny))
         return adjacents
 
 
-    '''
-        a valid graph point is either a start/end point, intersection, turn, or dead-end
-        # A coordinate has an intersection if it has more than 3 neighbors 
-        A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
-    '''
+
     def is_valid_graph_point(self, center: tuple, adjacents : list[tuple[int,int]]):
+        '''
+            a valid graph point is either a start/end point, intersection, turn, or dead-end
+            # A coordinate has an intersection if it has more than 3 neighbors
+            A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
+        '''
         x, y = center
         if self.maze_array[y][x] == BlockState.START or self.maze_array[y][x] == BlockState.END: # coordinate is a start/end point
             return True
@@ -150,35 +154,81 @@ class Maze:
         return direction1 + direction2 != (0, 0)
 
     """
-    # After some thought, and based on what counts as graph points now, a "walk" the corridor approach seems better,
-    # where the algorithm will walk a path in a single direction until it reaches an valid graph point
+        After some thought, and based on what counts as graph points now, a "walk" the corridor approach seems better,
+        where the algorithm will walk a path in a single direction until it reaches an valid graph point for all 4 directions
     """
-
-    def walk_corridors(self,start_point: tuple):
+    def walk_corridors(self, start_point, bfs_queue : deque[tuple], visited):
         '''
-            Looks for all the intersection points of the maze to be added to the adjacency list
-            Done by walking through every corridor of the maze in a singular direction until it hits an intersection
+            Will only walk through the corridors of valid graph_points
+            when it gets to a valid graph point, it will add it to the graph
         '''
-        origin_x, origin_y = start_point
-        for next_x, next_y in self.get_adjacent(origin_x,origin_y):
-            # directional difference bteween the adjacent x/y and start x/y
-            dx, dy = next_x - origin_x, next_y - origin_y # (0,-1) up | (0, 1) down |(-1,0) left |(1,0) right |
+        start_x, start_y = start_point
+        # 0s are there so only either the x or y coordinate is changed in one loop
+        dx = [1, -1, 0, 0]  # right, left
+        dy = [0, 0, 1, -1]  # down, up
+        for i in range(4):
+            # (0,-1) up | (0, 1) down |(-1,0) left |(1,0) right |
+            current_x = start_x + dx[i]
+            current_y = start_y + dy[i]
             distance = 1
-            current_x, current_y = next_x, next_y
+            # Safeguard for unwalkable coordinates
+            if (current_x < 0 or current_y < 0
+                    or current_x >= self.cols or current_y >= self.rows
+                    or self.maze_array[current_y][current_x].state == BlockState.WALL):
+                return
             while True:
                 # to check if it is a valid graph point
-                current_adjacents = self.get_adjacent(current_x,current_y)
+                current_adjacents = self.get_adjacent((current_x, current_y))
+                if (self.is_valid_graph_point((current_x, current_y), current_adjacents)
+                        and not visited[current_x][current_y]):
+                    # For BFS traversal
+                    visited[current_x][current_y] = True
+                    bfs_queue.append((current_x, current_y))
 
+                    self.graph_points.add_connection(
+                        (start_x, start_y),
+                        (current_x,current_y),
+                        distance)
+                    break
                 # Moves through a corridor in the same direction
-                next_x, next_y = current_x + dx, current_y + dy
+                next_x, next_y = current_x + dx[i], current_y + dy[i]
                 # if the adjacent coordiante is out of bounds or a wall, break while loop
                 if (next_x < 0 or next_y < 0
                         or next_x >= self.cols or next_y >= self.rows
                         or self.maze_array[next_y][next_x].state == BlockState.WALL):
                     break
+                # goes onto the next block in the corridor
                 current_x, current_y = next_x, next_y
                 distance += 1
 
+
+    def create_graph(self, start_point: tuple):
+        '''
+            Looks for all the intersection points of the maze to be added to the adjacency list
+            Done by walking through every corridor of the maze in a singular direction until it hits an intersection
+            Will use a BFS approach
+        '''
+        start_x, start_y = start_point
+        columns , rows = self.cols, self.rows
+        # array_rep = maze_obj.maze_array
+        # maze_graph = maze_obj.graph_points
+        # # keeps track of the distance between each maze coord that would go in the graph
+        # distance = [[-1 for i in range(columns)] for j in range(rows)]
+        # distance[start_y][start_x] = 0
+        # Keeps track of Visited: might be too much space, considering using vector
+        visited = [[False for i in range(columns)] for j in range(rows)]
+        visited[start_y][start_x] = True
+
+        # stored as (x, y)
+        q = deque()
+        q.append((start_x,start_y))
+        while q:
+            # ux, uy is the "center" point, or current
+            ux, uy = q.popleft()
+            # BFS additional steps done in this method
+            self.walk_corridors((ux,uy),q,visited)
+
+        print("Grap created successfully")
     # == Visuals == #
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''

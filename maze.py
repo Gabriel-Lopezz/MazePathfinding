@@ -157,9 +157,9 @@ class Maze:
         After some thought, and based on what counts as graph points now, a "walk" the corridor approach seems better,
         where the algorithm will walk a path in a single direction until it reaches an valid graph point for all 4 directions
     """
-    def walk_corridors(self, start_point, bfs_queue : deque[tuple], visited):
+    def walk_corridors(self, start_point, bfs_queue : deque[tuple], visited: set[tuple]):
         '''
-            Will only walk through the corridors of valid graph_points
+            Will only walk through the corridors in all 4 directions of valid graph_points
             when it gets to a valid graph point, it will add it to the graph
         '''
         start_x, start_y = start_point
@@ -175,14 +175,15 @@ class Maze:
             if (current_x < 0 or current_y < 0
                     or current_x >= self.cols or current_y >= self.rows
                     or self.maze_array[current_y][current_x].state == BlockState.WALL):
-                return
+                continue
+
             while True:
                 # to check if it is a valid graph point
                 current_adjacents = self.get_adjacent((current_x, current_y))
                 if (self.is_valid_graph_point((current_x, current_y), current_adjacents)
-                        and not visited[current_y][current_x]):
+                        and (current_x,current_y) not in visited ):# not visited[current_y][current_x]):
                     # For BFS traversal
-                    visited[current_y][current_x] = True
+                    visited.add((current_x,current_y))
                     bfs_queue.append((current_x, current_y))
 
                     self.graph_points.add_connection(
@@ -190,6 +191,7 @@ class Maze:
                         (current_x,current_y),
                         distance)
                     break
+
                 # Moves through a corridor in the same direction
                 next_x, next_y = current_x + dx[i], current_y + dy[i]
                 # if the adjacent coordiante is out of bounds or a wall, break while loop
@@ -197,6 +199,7 @@ class Maze:
                         or next_x >= self.cols or next_y >= self.rows
                         or self.maze_array[next_y][next_x].state == BlockState.WALL):
                     break
+
                 # goes onto the next block in the corridor
                 current_x, current_y = next_x, next_y
                 distance += 1
@@ -209,10 +212,10 @@ class Maze:
             Will use a BFS approach
         '''
         start_x, start_y = start_point
-        columns , rows = self.cols, self.rows
-        # Keeps track of Visited: might be too much space, considering using vector
-        visited = [[False for i in range(columns)] for j in range(rows)]
-        visited[start_y][start_x] = True
+        # Keeps track of Visited & ensures that each corridor is walked exaclty once
+        # fixed spacing issue
+        visited = set()
+        visited.add = (start_x,start_y)
 
         # stored as (x, y)
         q = deque()

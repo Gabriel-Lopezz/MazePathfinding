@@ -1,15 +1,17 @@
 import heapq
 from block import Block, BlockState
 
-def heuristic(start: tuple[int, int], goal: tuple[int, int], min_dist: int ):
+def scaled_heuristic(start: tuple[int, int], goal: tuple[int, int], scale_factor: int):
     '''
     Calculate heuristic based on 4-Directional Manhattan Distance formula.
-    min_dist is used to scale the heuristic. It should be the shortest path from one intersection to another.
+    scale_factor is used to scale the heuristic for tie-breaking. 
+        Should be no more (1 + 1/(expected maximum path length)) for our use case
     '''
+
     dx = abs(goal[0] - start[0])
     dy = abs(goal[1] - start[1])
 
-    return min_dist * (dx + dy)
+    return (dx + dy) * scale_factor
 
 def grid_neighbors(grid: list[list], source: tuple[int, int]):
     row, col = source[0], source[1]
@@ -32,8 +34,12 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
     f_scores = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
     distances = f_scores.copy()
     distances[start] = 0
+
+    h_scale_factor = len(maze_grid) * len(maze_grid[0])
+
+    step_cost = 1
     
-    start_h = heuristic(start=start, goal=end, min_dist=1)
+    start_h = scaled_heuristic(start=start, goal=end, scale_factor=h_scale_factor)
     f_scores[start] = start_h
 
     # min heap for available routes, first element based ordering 
@@ -41,7 +47,9 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
 
     predecessors = {}
 
-    while len(frontier) > 0:
+    endFound = False
+
+    while len(frontier) > 0 and not endFound:
         curF, curNode = heapq.heappop(frontier)
 
         if curNode == end: # First path to end will always be shortest; safe to break
@@ -51,17 +59,39 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
             continue
         
         for nDist, nNode in grid_neighbors(grid=maze_grid, source=curNode):
-            if (maze_grid[nNode[0]][nNode[1]].state == BlockState.WALL):
+            nrow, ncol = nNode
+            nblock = maze_grid[nrow][ncol]
+
+            if (nblock.state == BlockState.WALL):
                 continue
 
             g = distances[curNode] + nDist
-            h = heuristic(start=nNode, goal=end, min_dist=1)
-            f = g + h
+            h = scaled_heuristic(start=nNode, goal=end, scale_factor=h_scale_factor)
+            scaled_h = h
+            f = g + scaled_h
             
             if f_scores[nNode] == -1 or f < f_scores[nNode]:
                 distances[nNode] = g
                 f_scores[nNode] = f
                 heapq.heappush(frontier, (f, nNode))
                 predecessors[nNode] = curNode
+                nblock.set_state(BlockState.EXPLORED)
+                nblock.draw()
+                
+                if nNode == end:
+                    endFound = True
+                    break
     
+    final_path = []
+    node = end
+    while node in predecessors:
+        block = maze_grid[node[0]][node[1]]
+        block.set_state(BlockState.FINAL)
+        block.draw()
+        node = predecessors[node]
+
+    
+    return list(reversed(final_path))
+
+
     return predecessors

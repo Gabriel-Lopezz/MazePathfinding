@@ -7,6 +7,8 @@ from maze import Maze
 from config import *
 from block import Block, BlockState
 from enum import Enum
+import A_star
+import multiprocessing
 
 class AppState(Enum):
     MAZE_NOT_LOADED = 0
@@ -76,6 +78,17 @@ def create_buttons(screen):
                            button_height),
         text = "Use Pre-made")
     
+    print_path_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(LIGHT_SKY_BLUE),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y + 2 * (button_height + button_spacing), # spacing the buttons vertically
+                           button_width, 
+                           button_height),
+        text = "Show path taken")
+    
     #===Buttons outside of the Maze Window===#
     # unloads maze to show load options again
     unload_button = Button(
@@ -84,13 +97,13 @@ def create_buttons(screen):
         text_color = pygame.Color(WHITE),
         font_size = NUM_FONT,
         rect = pygame.Rect(BUTTONS_X, 
-                           BUTTONS_Y + 3 * button_height + button_spacing,
+                           BUTTONS_Y + 3 * (button_height + button_spacing),
                            button_width, 
                            button_height),
         text = "Unload Maze")
 
 
-    return upload_button,preload_button,unload_button
+    return upload_button, preload_button, print_path_button, unload_button
 
 def main():
     pygame.init()
@@ -112,10 +125,10 @@ def main():
     # ]
     # re-doing UI so commenting out this part for now - Andres
 
-    upload_button, preload_button, unload_button = create_buttons(screen)
+    upload_button, preload_button, print_path_button, unload_button = create_buttons(screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
     # trying to work with buttons that show at all times - Andres
-    all_buttons = [upload_button, preload_button, unload_button]
+    all_buttons = [upload_button, preload_button, print_path_button, unload_button]
 
     '''
     Setup GUI elements. Rendering new objects will be event-based, not per-frame
@@ -131,6 +144,14 @@ def main():
     # pygame.display.flip()
 
     # I commented this out because it doesn't seem necessary but don't wanna delete it - Andres
+
+    drawing_maze = False
+
+    screen.fill(WHITE)
+
+    # without the "and" statement here the "unload" button crashes due to some interaction with the maze.clear() method - Andres
+    if maze and maze.maze_array is not None:
+        maze.draw()
 
     while running:
         for event in pygame.event.get():
@@ -164,6 +185,17 @@ def main():
                         maze.clear()
                     # screen.fill(WHITE)
                     app_state = AppState.MAZE_NOT_LOADED
+                
+                elif print_path_button.is_clicked((x,y)):
+                    print_path_button.clicked()
+                    preds = A_star.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+                    path = []
+                    n = maze.end_coord
+                    while n in preds:
+                        path.append(n)
+                        n = preds[n]
+                    path.append(maze.start_coord)
+                    print(reversed(list(path)))
 
                 # Maze interaction: box clicks
                 elif maze and MAZE_PADDING_LEFT <= x <= MAZE_PADDING_LEFT + MAZE_SIZE and MAZE_PADDING_TOP <= y <= MAZE_PADDING_TOP + MAZE_SIZE:
@@ -177,17 +209,9 @@ def main():
 
         # == Drawing ==
 
-        screen.fill(WHITE)
-
         # Draw all buttons regardless of state
         for button in all_buttons: 
             button.draw()
-        # if this for loop for the buttons is out after 
-        # the maze.draw() the buttons start flickering - Andres
-
-        # without the "and" statement here the "unload" button crashes due to some interaction with the maze.clear() method - Andres
-        if maze and maze.maze_array is not None:
-            maze.draw()
 
         pygame.display.flip()
         clock.tick(60)

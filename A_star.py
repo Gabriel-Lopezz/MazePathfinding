@@ -27,13 +27,24 @@ def grid_neighbors(grid: list[list], source: tuple[int, int]):
 
     return nbors
 
+def tie_prevent_heappush(heap: list[tuple[int, tuple[int, int]]], elem: tuple[int, tuple[int, int]], g_scores: dict[tuple[int, int], int]):
+    heapq.heappush(heap, elem)
+
+    if heap[0][0] == heap[1][0] and g_scores[heap[1][1]] :
+        
+
+def tie_prevent_heappop(heap: list[tuple[int, tuple[int, int]]], elem: tuple[int, tuple[int, int]], g_scores: dict[tuple[int, int], int]):
+    heapq.heappop(heap, elem)
+
 def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int, int]):
     # Dictionary initializer of format: `(coord.x, coord.y): -1`
     f_scores = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
     distances = f_scores.copy()
     distances[start] = 0
+
+    step_cost = 1
     
-    start_h = heuristic(start=start, goal=end, min_dist=1)
+    start_h = heuristic(start=start, goal=end, min_dist=step_cost)
     f_scores[start] = start_h
 
     # min heap for available routes, first element based ordering 
@@ -41,7 +52,9 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
 
     predecessors = {}
 
-    while len(frontier) > 0:
+    endFound = False
+
+    while len(frontier) > 0 and not endFound:
         curF, curNode = heapq.heappop(frontier)
 
         if curNode == end: # First path to end will always be shortest; safe to break
@@ -51,11 +64,14 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
             continue
         
         for nDist, nNode in grid_neighbors(grid=maze_grid, source=curNode):
-            if (maze_grid[nNode[0]][nNode[1]].state == BlockState.WALL):
+            nrow, ncol = nNode
+            nblock = maze_grid[nrow][ncol]
+
+            if (nblock.state == BlockState.WALL):
                 continue
 
             g = distances[curNode] + nDist
-            h = heuristic(start=nNode, goal=end, min_dist=1)
+            h = heuristic(start=nNode, goal=end, min_dist=step_cost)
             f = g + h
             
             if f_scores[nNode] == -1 or f < f_scores[nNode]:
@@ -63,5 +79,23 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
                 f_scores[nNode] = f
                 heapq.heappush(frontier, (f, nNode))
                 predecessors[nNode] = curNode
+                nblock.set_state(BlockState.EXPLORED)
+                nblock.draw()
+                
+                if nNode == end:
+                    endFound = True
+                    break
     
+    final_path = []
+    node = end
+    while node in predecessors:
+        block = maze_grid[node[0]][node[1]]
+        block.set_state(BlockState.FINAL)
+        block.draw()
+        node = predecessors[node]
+
+    
+    return list(reversed(final_path))
+
+
     return predecessors

@@ -1,15 +1,17 @@
 import heapq
 from block import Block, BlockState
 
-def heuristic(start: tuple[int, int], goal: tuple[int, int], min_dist: int ):
+def scaled_heuristic(start: tuple[int, int], goal: tuple[int, int], scale_factor: int):
     '''
     Calculate heuristic based on 4-Directional Manhattan Distance formula.
-    min_dist is used to scale the heuristic. It should be the shortest path from one intersection to another.
+    scale_factor is used to scale the heuristic for tie-breaking. 
+        Should be no more (1 + 1/(expected maximum path length)) for our use case
     '''
+
     dx = abs(goal[0] - start[0])
     dy = abs(goal[1] - start[1])
 
-    return min_dist * (dx + dy)
+    return (dx + dy) * scale_factor
 
 def grid_neighbors(grid: list[list], source: tuple[int, int]):
     row, col = source[0], source[1]
@@ -27,24 +29,17 @@ def grid_neighbors(grid: list[list], source: tuple[int, int]):
 
     return nbors
 
-def tie_prevent_heappush(heap: list[tuple[int, tuple[int, int]]], elem: tuple[int, tuple[int, int]], g_scores: dict[tuple[int, int], int]):
-    heapq.heappush(heap, elem)
-
-    if heap[0][0] == heap[1][0] and g_scores[heap[1][1]] :
-        
-
-def tie_prevent_heappop(heap: list[tuple[int, tuple[int, int]]], elem: tuple[int, tuple[int, int]], g_scores: dict[tuple[int, int], int]):
-    heapq.heappop(heap, elem)
-
 def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int, int]):
     # Dictionary initializer of format: `(coord.x, coord.y): -1`
     f_scores = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
     distances = f_scores.copy()
     distances[start] = 0
 
+    h_scale_factor = len(maze_grid) * len(maze_grid[0])
+
     step_cost = 1
     
-    start_h = heuristic(start=start, goal=end, min_dist=step_cost)
+    start_h = scaled_heuristic(start=start, goal=end, scale_factor=h_scale_factor)
     f_scores[start] = start_h
 
     # min heap for available routes, first element based ordering 
@@ -71,8 +66,9 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
                 continue
 
             g = distances[curNode] + nDist
-            h = heuristic(start=nNode, goal=end, min_dist=step_cost)
-            f = g + h
+            h = scaled_heuristic(start=nNode, goal=end, scale_factor=h_scale_factor)
+            scaled_h = h
+            f = g + scaled_h
             
             if f_scores[nNode] == -1 or f < f_scores[nNode]:
                 distances[nNode] = g

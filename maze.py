@@ -180,9 +180,9 @@ class Maze:
                 # to check if it is a valid graph point
                 current_adjacents = self.get_adjacent((current_x, current_y))
                 if (self.is_valid_graph_point((current_x, current_y), current_adjacents)
-                        and not visited[current_x][current_y]):
+                        and not visited[current_y][current_x]):
                     # For BFS traversal
-                    visited[current_x][current_y] = True
+                    visited[current_y][current_x] = True
                     bfs_queue.append((current_x, current_y))
 
                     self.graph_points.add_connection(
@@ -210,11 +210,6 @@ class Maze:
         '''
         start_x, start_y = start_point
         columns , rows = self.cols, self.rows
-        # array_rep = maze_obj.maze_array
-        # maze_graph = maze_obj.graph_points
-        # # keeps track of the distance between each maze coord that would go in the graph
-        # distance = [[-1 for i in range(columns)] for j in range(rows)]
-        # distance[start_y][start_x] = 0
         # Keeps track of Visited: might be too much space, considering using vector
         visited = [[False for i in range(columns)] for j in range(rows)]
         visited[start_y][start_x] = True

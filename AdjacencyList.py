@@ -12,8 +12,8 @@ class AdjacencyList:
         self.intersection_coords : set[tuple] = set() # stores what coords have been saved
         self.coord_to_verNum : dict[tuple,int] = {} # key: coordinate (y,x), value: vertex #
         self.verNum_to_coord : dict[int,tuple] = {} # key: vertex #, value: coordinate (y,x)
-    # Getters
-    def get_vertex(self, coord):
+    # Getters : for debugging
+    def get_vertex_number(self, coord):
         return self.coord_to_verNum.get(coord)
     def get_vertices(self):
         """returns number of vertices"""

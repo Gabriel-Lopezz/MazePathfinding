@@ -39,10 +39,11 @@ def render_maze(maze: Maze, border: list[dict]):
     [pygame.draw.line(**line) for line in border]
     maze.draw()
     pygame.display.flip()
-'''
-    Creates buttons in bulk, can add new buttons, just make sure to add it to return statement
-'''
+
 def create_buttons(screen):
+    '''
+    Creates buttons in bulk, can add new buttons, just make sure to add it to return statement
+    '''
 
     button_width = WINDOW_SIZE * 0.2
     button_height = WINDOW_SIZE * 0.06
@@ -105,6 +106,22 @@ def create_buttons(screen):
 
     return upload_button, preload_button, print_path_button, unload_button
 
+def visualize_algorithm(maze_grid: list[list[Block]], explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
+    for row, col in explored_inds:
+        print("Row: ", row, "Col: ", col)
+        block = maze_grid[row][col]
+        block.set_state(BlockState.EXPLORED)
+        block.draw()
+        yield True
+    
+    for row, col in path_inds:
+        block = maze_grid[row][col]
+        block.set_state(BlockState.FINAL)
+        block.draw()
+        yield True
+
+    yield False
+
 def main():
     pygame.init()
 
@@ -145,13 +162,11 @@ def main():
 
     # I commented this out because it doesn't seem necessary but don't wanna delete it - Andres
 
-    drawing_maze = False
+    is_maze_drawing = False
+    maze_drawer = None
+    draw_speed = 60 # Default tick rate
 
     screen.fill(WHITE)
-
-    # without the "and" statement here the "unload" button crashes due to some interaction with the maze.clear() method - Andres
-    if maze and maze.maze_array is not None:
-        maze.draw()
 
     while running:
         for event in pygame.event.get():
@@ -167,35 +182,30 @@ def main():
                     maze_file = prompt_file()
                     if maze_file:
                         maze = Maze(maze_file=maze_file, screen=screen)
-                        # screen.fill(WHITE)
                         maze.draw()
                         app_state = AppState.MAZE_LOADED
+                        draw_speed = len(maze.maze_array) * len(maze.maze_array[0]) * .15
 
                 elif preload_button.is_clicked((x, y)):
                     preload_button.clicked()
                     with open("PreMade_Mazes/10x10_Maze1.csv", "r") as maze_file:
                         maze = Maze(maze_file=maze_file, screen=screen)
-                        # screen.fill(WHITE)
                         maze.draw()
                         app_state = AppState.MAZE_LOADED
+                        draw_speed = len(maze.maze_array) * len(maze.maze_array[0]) * .15
 
                 elif unload_button.is_clicked((x, y)):
                     unload_button.clicked()
                     if maze:
                         maze.clear()
-                    # screen.fill(WHITE)
                     app_state = AppState.MAZE_NOT_LOADED
                 
                 elif print_path_button.is_clicked((x,y)):
                     print_path_button.clicked()
-                    preds = A_star.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
-                    path = []
-                    n = maze.end_coord
-                    while n in preds:
-                        path.append(n)
-                        n = preds[n]
-                    path.append(maze.start_coord)
-                    print(reversed(list(path)))
+                    blocks_explored, final_path = A_star.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+                    drawing_args = {"maze_grid":maze.maze_array, "explored_inds":blocks_explored, "path_inds":final_path}
+                    maze_drawer = visualize_algorithm(**drawing_args)
+                    is_maze_drawing = True
 
                 # Maze interaction: box clicks
                 elif maze and MAZE_PADDING_LEFT <= x <= MAZE_PADDING_LEFT + MAZE_SIZE and MAZE_PADDING_TOP <= y <= MAZE_PADDING_TOP + MAZE_SIZE:
@@ -208,13 +218,15 @@ def main():
         # we can add more buttons and enable/disabled them whenever
 
         # == Drawing ==
+        if is_maze_drawing:
+            is_maze_drawing = next(maze_drawer)
 
         # Draw all buttons regardless of state
         for button in all_buttons: 
             button.draw()
 
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(draw_speed) # tick rate = drawing speed
 
     pygame.quit()
     sys.exit()

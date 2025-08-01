@@ -36,8 +36,6 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
     distances[start] = 0
 
     h_scale_factor = len(maze_grid) * len(maze_grid[0])
-
-    step_cost = 1
     
     start_h = scaled_heuristic(start=start, goal=end, scale_factor=h_scale_factor)
     f_scores[start] = start_h
@@ -46,6 +44,7 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
     frontier = [(start_h, start)]
 
     predecessors = {}
+    explored = []
 
     endFound = False
 
@@ -55,9 +54,13 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
         if curNode == end: # First path to end will always be shortest; safe to break
             break
 
+        # If this path is worse than the current best, skip it
         if f_scores[curNode] != -1 and curF > f_scores[curNode]:
             continue
-        
+
+        explored.append(curNode) # Add to the list of explored blocks
+
+        # Process neighbors
         for nDist, nNode in grid_neighbors(grid=maze_grid, source=curNode):
             nrow, ncol = nNode
             nblock = maze_grid[nrow][ncol]
@@ -67,16 +70,13 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
 
             g = distances[curNode] + nDist
             h = scaled_heuristic(start=nNode, goal=end, scale_factor=h_scale_factor)
-            scaled_h = h
-            f = g + scaled_h
+            f = g + h
             
             if f_scores[nNode] == -1 or f < f_scores[nNode]:
                 distances[nNode] = g
                 f_scores[nNode] = f
                 heapq.heappush(frontier, (f, nNode))
                 predecessors[nNode] = curNode
-                nblock.set_state(BlockState.EXPLORED)
-                nblock.draw()
                 
                 if nNode == end:
                     endFound = True
@@ -85,13 +85,7 @@ def a_star(maze_grid: list[list[Block]], start: tuple[int, int], end: tuple[int,
     final_path = []
     node = end
     while node in predecessors:
-        block = maze_grid[node[0]][node[1]]
-        block.set_state(BlockState.FINAL)
-        block.draw()
         node = predecessors[node]
-
+        final_path.append(node)
     
-    return list(reversed(final_path))
-
-
-    return predecessors
+    return explored, list(reversed(final_path))

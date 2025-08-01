@@ -26,6 +26,9 @@ class Block:
 
 
     def set_state(self, state: BlockState|int):
+        '''
+        Set block state and change color accordingly
+        '''
         self.state = state
 
         match BlockState(state):
@@ -52,11 +55,11 @@ class Block:
 
             case _: # non-existent case
                 raise Exception(f"Could not resolve Block State {self.state}. Block: row {self.row}, col {self.col}")
-
-    """
-        Draws the block based on its state
-    """
+    
     def draw(self):
+        """
+        Draws the block based on its state
+        """
         self.set_state(self.state)
         pygame.draw.rect(surface=self.screen, color=self.color, rect=self.rect)
 

@@ -205,13 +205,13 @@ class Maze:
                 distance += 1
 
 
-    def create_graph(self, start_point: tuple):
+    def create_graph(self):
         '''
             Looks for all the intersection points of the maze to be added to the adjacency list
             Done by walking through every corridor of the maze in a singular direction until it hits an intersection
             Will use a BFS approach
         '''
-        start_x, start_y = start_point
+        start_x, start_y = self.start_coord
         # Keeps track of Visited & ensures that each corridor is walked exaclty once
         # fixed spacing issue
         visited = set()

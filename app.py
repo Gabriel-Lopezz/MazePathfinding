@@ -144,9 +144,9 @@ def main():
     maze = None
     app_state = AppState.MAZE_NOT_LOADED
     # will change based on the algorithm/traversal user chooses
-    algorith = Algorithm_Choice.NONE
+    algorithm = Algorithm_Choice.NONE
     traversal = Traversal_Method.NONE
-
+    algorithm = Algorithm_Choice.DIJKSTRAS
     # window_border = [
     #     { "surface": screen, "color": BLACK, "start_pos": (MAZE_SIZE, 0), "end_pos": (MAZE_SIZE, MAZE_SIZE + 2), "width": 5 },
     #     { "surface": screen, "color": BLACK, "start_pos": (0, MAZE_SIZE), "end_pos": (MAZE_SIZE + 2, MAZE_SIZE), "width": 5 }
@@ -211,12 +211,19 @@ def main():
                         maze.clear()
                     app_state = AppState.MAZE_NOT_LOADED
                 
-                elif print_path_button.is_clicked((x,y)):
+                elif print_path_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.NONE:
                     print_path_button.clicked()
-                    blocks_explored, final_path = A_star.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
-                    drawing_args = {"maze_grid":maze.maze_array, "explored_inds":blocks_explored, "path_inds":final_path}
-                    maze_drawer = visualize_algorithm(**drawing_args)
-                    is_maze_drawing = True
+
+                    if algorithm == Algorithm_Choice.A_STAR:
+                        blocks_explored, final_path = A_star.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+                        drawing_args = {"maze_grid":maze.maze_array, "explored_inds":blocks_explored, "path_inds":final_path}
+                        maze_drawer = visualize_algorithm(**drawing_args)
+                        is_maze_drawing = True
+                    elif algorithm == Algorithm_Choice.DIJKSTRAS:
+                        print("Testing")
+                        maze.create_graph()
+                        maze.graph_points.print_list()
+
                     app_state = AppState.FINISHED
 
                 # Maze interaction: box clicks

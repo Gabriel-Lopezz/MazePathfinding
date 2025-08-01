@@ -215,7 +215,7 @@ class Maze:
         # Keeps track of Visited & ensures that each corridor is walked exaclty once
         # fixed spacing issue
         visited = set()
-        visited.add = (start_x,start_y)
+        visited.add((start_x,start_y))
 
         # stored as (x, y)
         q = deque()
@@ -226,7 +226,7 @@ class Maze:
             # BFS additional steps done in this method
             self.walk_corridors((ux,uy),q,visited)
 
-        print("Grap created successfully")
+        print("Graph created successfully")
     # == Visuals == #
     def click_box(self, x, y, event_type):
         '''event_type: 1 = left click, 3 = right click'''

@@ -7,8 +7,7 @@ from maze import Maze
 from config import *
 from block import Block, BlockState
 from enum import Enum
-import A_star
-import multiprocessing
+import Algorithms
 
 class AppState(Enum):
     MAZE_NOT_LOADED = 0
@@ -215,7 +214,7 @@ def main():
                     print_path_button.clicked()
 
                     if algorithm == Algorithm_Choice.A_STAR:
-                        blocks_explored, final_path = A_star.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+                        blocks_explored, final_path = Algorithms.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
                         drawing_args = {"maze_grid":maze.maze_array, "explored_inds":blocks_explored, "path_inds":final_path}
                         maze_drawer = visualize_algorithm(**drawing_args)
                         is_maze_drawing = True

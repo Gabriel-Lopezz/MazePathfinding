@@ -15,6 +15,14 @@ class AppState(Enum):
     MAZE_LOADED = 1
     TRAVERSING = 2
     FINISHED = 3
+class Algorithm_Choice(Enum):
+    NONE = 0
+    A_STAR = 1
+    DIJKSTRAS = 2
+class Traversal_Method(Enum):
+    NONE = 0
+    INSTANT = 1
+    PROCEDUAL = 2
 '''
     Prompts the user's file system dialog box and returns the file data
 '''
@@ -135,6 +143,9 @@ def main():
     # Maze object, maze state and maze window border (as kwargs for draw function)
     maze = None
     app_state = AppState.MAZE_NOT_LOADED
+    # will change based on the algorithm/traversal user chooses
+    algorith = Algorithm_Choice.NONE
+    traversal = Traversal_Method.NONE
 
     # window_border = [
     #     { "surface": screen, "color": BLACK, "start_pos": (MAZE_SIZE, 0), "end_pos": (MAZE_SIZE, MAZE_SIZE + 2), "width": 5 },

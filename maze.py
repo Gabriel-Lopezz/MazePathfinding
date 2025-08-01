@@ -142,17 +142,18 @@ class Maze:
             return True
         if len(adjacents) >= 3 or len(adjacents) == 1: # coordinate (x,y) is an intersection or a deadend
             return True
-        adjacent1 ,adjacent2 = adjacents[0],adjacents[1]
-        if adjacent1 == adjacent2: # guard against duplicate adjacent points
-            return False
-        ux, uy = adjacent1
-        vx, vy = adjacent2
-        direction1 = (ux - x, uy - y)
-        direction2 = (vx - x, vy - y)
-        # if both directions added up equals to (0,0), that means they are going in a straight line
-        # NOTE, this will get messed up if the two adjacent coordinates pased in ARE THE SAME
-        return direction1 + direction2 != (0, 0)
-
+        if len(adjacents) == 2:
+            adjacent1 ,adjacent2 = adjacents[0],adjacents[1]
+            if adjacent1 == adjacent2: # guard against duplicate adjacent points
+                return False
+            ux, uy = adjacent1
+            vx, vy = adjacent2
+            dx1, dy1 = ux - x, uy - y # represents the change of direction from the first adjacent point
+            dx2, dy2 = vx - x, vy - y # represents the change of direction from the second adjacent point
+            # if at least one either of the changes of direction != 0, that means the line is not straight/ is a turn
+            if dx1 + dx2 != 0 or dy1 +dy2 != 0:
+                return True
+        return False
     """
         After some thought, and based on what counts as graph points now, a "walk" the corridor approach seems better,
         where the algorithm will walk a path in a single direction until it reaches an valid graph point for all 4 directions

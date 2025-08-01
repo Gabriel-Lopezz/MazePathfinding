@@ -206,9 +206,11 @@ def main():
                     drawing_args = {"maze_grid":maze.maze_array, "explored_inds":blocks_explored, "path_inds":final_path}
                     maze_drawer = visualize_algorithm(**drawing_args)
                     is_maze_drawing = True
+                    app_state = AppState.FINISHED
 
                 # Maze interaction: box clicks
-                elif maze and MAZE_PADDING_LEFT <= x <= MAZE_PADDING_LEFT + MAZE_SIZE and MAZE_PADDING_TOP <= y <= MAZE_PADDING_TOP + MAZE_SIZE:
+                elif maze and MAZE_PADDING_LEFT <= x <= MAZE_PADDING_LEFT + MAZE_SIZE and MAZE_PADDING_TOP <= y <= MAZE_PADDING_TOP + MAZE_SIZE\
+                        and app_state != AppState.FINISHED:
                     maze.click_box(x, y, event.button)
 
         # enabling/disabling buttons based on state

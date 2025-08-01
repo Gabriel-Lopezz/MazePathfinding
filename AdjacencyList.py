@@ -23,10 +23,11 @@ class AdjacencyList:
     def print_list(self):
         the_graph = self.graph
         for vertexNum, pair in the_graph.items():
-            print(f"{vertexNum}: ")
+            print(f"Vertex-{vertexNum}-{self.verNum_to_coord[vertexNum]}: ", end="")
             for value in pair:
                 connection, distance = value
-                print(f"->[{connection}:{distance}]")
+                print(f"->[Vertex-{connection}-{self.verNum_to_coord[connection]}:{distance}]", end="")
+            print()
 
 
     def add_connection(self, _from:tuple[int,int], _to:tuple[int,int], _weight):

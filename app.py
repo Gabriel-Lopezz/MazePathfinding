@@ -168,7 +168,7 @@ def main():
     # will change based on the algorithm/traversal user chooses
     algorithm = Algorithm_Choice.NONE
     traversal = Traversal_Method.NONE
-    algorithm = Algorithm_Choice.DIJKSTRAS
+    algorithm = Algorithm_Choice.A_STAR
 
     '''
     Setup GUI elements. Rendering new objects will be event-based, not per-frame

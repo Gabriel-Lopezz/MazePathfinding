@@ -80,7 +80,7 @@ class Maze:
         if self.rows < 2 or self.cols < 2 or self.rows != self.cols:
             raise Exception(f"Maze must be square, at least 2x2. This maze has rows:{self.rows} cols:{self.cols}")
         
-        self.block_length = MAZE_SIZE / self.rows
+        self.block_length = MAZE_SIZE // self.rows
         
         starts = 0
         ends = 0

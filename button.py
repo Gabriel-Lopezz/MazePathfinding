@@ -42,6 +42,7 @@ class Button:
         pygame.time.delay(100)
         pygame.draw.rect(self.screen, self.bg_color, self.rect)
         self.screen.blit(self.text_surface, self.text_rect)
+        pygame.display.flip()
 
     def is_clicked(self, pos):
         return self.enabled and self.rect.collidepoint(pos)

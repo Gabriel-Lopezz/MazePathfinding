@@ -2,6 +2,7 @@ import pygame
 import tkinter
 from tkinter import filedialog
 import sys
+from threading import Thread
 from button import Button
 from maze import Maze
 from config import *
@@ -42,10 +43,13 @@ def prompt_file():
 def create_maze(file):
     return Maze()
 
-def render_maze(maze: Maze, border: list[dict]):
-    [pygame.draw.line(**line) for line in border]
+def render_maze(maze: Maze, speed_factor: float):
     maze.draw()
+    app_state = AppState.MAZE_LOADED
+    draw_speed = len(maze.maze_array) * len(maze.maze_array[0]) * .15
     pygame.display.flip()
+
+    return app_state, draw_speed
 
 def create_buttons(screen):
     '''
@@ -61,7 +65,6 @@ def create_buttons(screen):
     # these align the buttons in line with the maze:
     BUTTONS_X = MAZE_PADDING_LEFT + MAZE_SIZE + 40
     BUTTONS_Y = MAZE_PADDING_TOP
-    
 
     # ===Buttons inside of the Maze Window===#
     upload_button = Button(
@@ -110,7 +113,6 @@ def create_buttons(screen):
                            button_height),
         text = "Unload Maze")
 
-
     return upload_button, preload_button, print_path_button, unload_button
 
 def visualize_algorithm(maze_grid: list[list[Block]], explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
@@ -146,39 +148,41 @@ def main():
     algorithm = Algorithm_Choice.NONE
     traversal = Traversal_Method.NONE
     algorithm = Algorithm_Choice.DIJKSTRAS
-    # window_border = [
-    #     { "surface": screen, "color": BLACK, "start_pos": (MAZE_SIZE, 0), "end_pos": (MAZE_SIZE, MAZE_SIZE + 2), "width": 5 },
-    #     { "surface": screen, "color": BLACK, "start_pos": (0, MAZE_SIZE), "end_pos": (MAZE_SIZE + 2, MAZE_SIZE), "width": 5 }
-    # ]
-    # re-doing UI so commenting out this part for now - Andres
+
+    '''
+    Setup GUI elements. Rendering new objects will be event-based, not per-frame
+    '''
+
+    screen.fill(WHITE)
 
     upload_button, preload_button, print_path_button, unload_button = create_buttons(screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
     # trying to work with buttons that show at all times - Andres
     all_buttons = [upload_button, preload_button, print_path_button, unload_button]
 
-    '''
-    Setup GUI elements. Rendering new objects will be event-based, not per-frame
-    '''
+    [button.draw() for button in all_buttons]
 
-    # screen.fill(WHITE) # Background
-    # # Main Menu Section:
-    # for button in all_buttons:
-    #     button.draw() #  pre-made maze load & user-input maze load button
+    pygame.display.flip()
 
-    # # [pygame.draw.line(**line) for line in window_border]
-
-    # pygame.display.flip()
-
-    # I commented this out because it doesn't seem necessary but don't wanna delete it - Andres
-
+    # Maze drawing variables
     is_maze_drawing = False
-    maze_drawer = None
+    maze_drawer = None # Generator for drawing
     draw_speed = 60 # Default tick rate
 
-    screen.fill(WHITE)
+    # Loading maze thread and result
+    t_load_maze = None
+    t_load_maze_result = []
 
     while running:
+        if t_load_maze and len(t_load_maze_result) > 0:
+            print("GOT IT")
+            maze = t_load_maze_result[0]
+            app_state, draw_speed = render_maze(maze=maze, speed_factor=.15)
+            
+            #cleanup
+            t_load_maze = None
+            t_load_maze_result.clear()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -191,18 +195,15 @@ def main():
                     upload_button.clicked()
                     maze_file = prompt_file()
                     if maze_file:
-                        maze = Maze(maze_file=maze_file, screen=screen)
-                        maze.draw()
-                        app_state = AppState.MAZE_LOADED
-                        draw_speed = len(maze.maze_array) * len(maze.maze_array[0]) * .15
+                        t_load_maze = Thread(target=Maze, args=(maze_file, screen, t_load_maze_result))
+                        t_load_maze.start()
 
                 elif preload_button.is_clicked((x, y)):
                     preload_button.clicked()
-                    with open("PreMade_Mazes/10x10_Maze1.csv", "r") as maze_file:
-                        maze = Maze(maze_file=maze_file, screen=screen)
-                        maze.draw()
-                        app_state = AppState.MAZE_LOADED
-                        draw_speed = len(maze.maze_array) * len(maze.maze_array[0]) * .15
+                    maze_file = open("PreMade_Mazes/10x10_Maze1.csv", "r")
+                    t_load_maze = Thread(target=Maze, args=(maze_file, screen, t_load_maze_result))
+                    t_load_maze.start()
+                        
 
                 elif unload_button.is_clicked((x, y)):
                     unload_button.clicked()
@@ -243,8 +244,9 @@ def main():
         # Draw all buttons regardless of state
         for button in all_buttons: 
             button.draw()
-
+        
         pygame.display.flip()
+
         clock.tick(draw_speed) # tick rate = drawing speed
 
     pygame.quit()

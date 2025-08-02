@@ -19,6 +19,8 @@ class Block:
         self.col = col
         self.screen = screen
 
+        # THE MAZE IS A COMPOSED OF BLOCKS.
+        # we can change the position of the entire maze by using padding here.
         self.x = MAZE_PADDING_LEFT + self.col * self.size
         self.y = MAZE_PADDING_TOP + self.row * self.size
         

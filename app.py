@@ -234,6 +234,7 @@ def main():
                         maze.clear()
 
                     app_state = AppState.MAZE_NOT_LOADED
+                    is_maze_drawing = False
                 
                 elif print_path_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.NONE:
                     print_path_button.clicked()

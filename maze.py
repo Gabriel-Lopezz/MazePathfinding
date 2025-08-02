@@ -69,59 +69,58 @@ class Maze:
         pygame.display.flip()
 
     def maze_from_file(self, file: _io.TextIOWrapper) -> list[list[Block]]:
-        lock = threading.Lock()
-        with lock:
-            maze = []
+        maze = []
 
-            lines = list(file)
-            self.rows = len(lines)
-            
-            reader = csv.reader(lines)
-            self.cols = len(next(reader))
+        lines = list(file)
+        self.rows = len(lines)
+        
+        reader = csv.reader(lines)
+        self.cols = len(next(reader))
 
-            if self.rows < 2 or self.cols < 2 or self.rows != self.cols:
-                raise Exception(f"Maze must be square, at least 2x2. This maze has rows:{self.rows} cols:{self.cols}")
-            
-            self.block_length = MAZE_SIZE / self.rows
-            
-            starts = 0
-            ends = 0
-            
-            for row_ind, row in enumerate(csv.reader(lines)):
-                maze_row = []
+        if self.rows < 2 or self.cols < 2 or self.rows != self.cols:
+            raise Exception(f"Maze must be square, at least 2x2. This maze has rows:{self.rows} cols:{self.cols}")
+        
+        self.block_length = MAZE_SIZE / self.rows
+        
+        starts = 0
+        ends = 0
+        
+        for row_ind, row in enumerate(csv.reader(lines)):
+            maze_row = []
 
-                for col_ind, block_str in enumerate(row):
-                    block_char = block_str.strip().lower()
+            for col_ind, block_str in enumerate(row):
+                block_char = block_str.strip().lower()
 
-                    match (block_char):
-                        case ".":
-                            block_state = BlockState.OPEN
+                match (block_char):
+                    case ".":
+                        block_state = BlockState.OPEN
 
-                        case "#":
-                            block_state = BlockState.WALL
+                    case "#":
+                        block_state = BlockState.WALL
 
-                        case "s":
-                            block_state = BlockState.START
-                            self.start_coord = (row_ind,col_ind)
-                            starts += 1
-                            
-                        case "e":
-                            block_state = BlockState.END
-                            self.end_coord = (row_ind, col_ind)
-                            ends += 1
+                    case "s":
+                        block_state = BlockState.START
+                        self.start_coord = (row_ind,col_ind)
+                        starts += 1
+                        
+                    case "e":
+                        block_state = BlockState.END
+                        self.end_coord = (row_ind, col_ind)
+                        ends += 1
 
-                        case _:
-                            raise Exception(f"Unknown block char '{block_char}': row {row_ind} col {col_ind}")
-                    
-                    cur_block = Block(self.block_length, block_state, row_ind, col_ind, self.screen)
-                    maze_row.append(cur_block)
+                    case _:
+                        raise Exception(f"Unknown block char '{block_char}': row {row_ind} col {col_ind}")
                 
-                maze.append(maze_row)
+                cur_block = Block(self.block_length, block_state, row_ind, col_ind, self.screen)
+                maze_row.append(cur_block)
             
-            if starts > 1 or ends > 1:
-                raise Exception(f"No more than 1 start point or end point. This maze has starts:{starts}, ends:{ends}.")
+            maze.append(maze_row)
+        
+        if starts > 1 or ends > 1:
+            raise Exception(f"No more than 1 start point or end point. This maze has starts:{starts}, ends:{ends}.")
 
-            return maze
+        return maze
+    
     # returns in (x,y) format
     def get_adjacent(self, start_point: tuple):
         x,y = start_point

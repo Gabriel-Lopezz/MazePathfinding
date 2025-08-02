@@ -241,8 +241,7 @@ def main():
 
                     if algorithm == Algorithm_Choice.A_STAR:
                         blocks_explored, final_path = Algorithms.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
-                        drawing_args = {"maze_grid":maze.maze_array, "explored_inds":blocks_explored, "path_inds":final_path}
-                        maze_drawer = visualize_algorithm(**drawing_args)
+                        maze_drawer = visualize_algorithm(maze_grid=maze.maze_array, explored_inds=blocks_explored, path_inds=final_path)
                         is_maze_drawing = True
                     elif algorithm == Algorithm_Choice.DIJKSTRAS:
                         print("Testing")

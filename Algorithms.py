@@ -10,7 +10,7 @@ def log_time_decorator(func):
     def wrapper(*args, **kwargs):
         start_time = time()
         func(*args, **kwargs)
-        exe_time = start_time - time
+        exe_time = time() - start_time
     
         return exe_time
     
@@ -86,8 +86,10 @@ def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
     distances = f_scores.copy()
     distances[start] = 0
 
+    # heuristic scale factor:
     h_scale_factor = len(maze_grid) * len(maze_grid[0])
     
+    # Start block parameters
     start_h = scaled_heuristic(start=start, goal=end, scale_factor=h_scale_factor)
     f_scores[start] = start_h
 
@@ -116,9 +118,10 @@ def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
             nrow, ncol = nNode
             nblock = maze_grid[nrow][ncol]
 
-            if (nblock.state == BlockState.WALL):
+            if (nblock.state == BlockState.WALL): #ignore walls
                 continue
 
+            # calculate neighboring f score
             g = distances[curNode] + nDist
             h = scaled_heuristic(start=nNode, goal=end, scale_factor=h_scale_factor)
             f = g + h
@@ -132,11 +135,17 @@ def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
                 if nNode == end:
                     endFound = True
                     break
+
+    if not endFound:
+        return explored, []
     
     final_path = []
+
     node = end
     while node in predecessors:
         node = predecessors[node]
         final_path.append(node)
     
     return explored, list(reversed(final_path))
+
+

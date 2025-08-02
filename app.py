@@ -112,12 +112,33 @@ def create_buttons(screen):
                            button_width, 
                            button_height),
         text = "Unload Maze")
+    
+    a_star_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(RED),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y + 5 * (button_height + button_spacing),
+                           button_width, 
+                           button_height),
+        text = "A*")
+    
+    dijkstras_star_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(RED),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y + 6 * (button_height + button_spacing),
+                           button_width, 
+                           button_height),
+        text = "Dijkstra's")
 
-    return upload_button, preload_button, print_path_button, unload_button
+    return upload_button, preload_button, print_path_button, unload_button, a_star_button, dijkstras_star_button
 
 def visualize_algorithm(maze_grid: list[list[Block]], explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
     for row, col in explored_inds:
-        print("Row: ", row, "Col: ", col)
         block = maze_grid[row][col]
         block.set_state(BlockState.EXPLORED)
         block.draw()
@@ -155,10 +176,10 @@ def main():
 
     screen.fill(WHITE)
 
-    upload_button, preload_button, print_path_button, unload_button = create_buttons(screen)
+    upload_button, preload_button, print_path_button, unload_button, a_star_button, dijkstras_button = create_buttons(screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
     # trying to work with buttons that show at all times - Andres
-    all_buttons = [upload_button, preload_button, print_path_button, unload_button]
+    all_buttons = [upload_button, preload_button, print_path_button, unload_button, a_star_button, dijkstras_button]
 
     [button.draw() for button in all_buttons]
 
@@ -193,6 +214,7 @@ def main():
                 # Handle button interactions if clicked and enabled
                 if upload_button.is_clicked((x, y)):
                     upload_button.clicked()
+
                     maze_file = prompt_file()
                     if maze_file:
                         t_load_maze = Thread(target=Maze, args=(maze_file, screen, t_load_maze_result))
@@ -200,6 +222,7 @@ def main():
 
                 elif preload_button.is_clicked((x, y)):
                     preload_button.clicked()
+
                     maze_file = open("PreMade_Mazes/10x10_Maze1.csv", "r")
                     t_load_maze = Thread(target=Maze, args=(maze_file, screen, t_load_maze_result))
                     t_load_maze.start()
@@ -209,6 +232,7 @@ def main():
                     unload_button.clicked()
                     if maze:
                         maze.clear()
+
                     app_state = AppState.MAZE_NOT_LOADED
                 
                 elif print_path_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.NONE:
@@ -224,7 +248,13 @@ def main():
                         maze.create_graph()
                         maze.graph_points.print_list()
 
-                    app_state = AppState.FINISHED
+                elif a_star_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.A_STAR:
+                    a_star_button.clicked()
+                    algorithm = Algorithm_Choice.A_STAR
+                
+                elif dijkstras_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.DIJKSTRAS:
+                    dijkstras_button.clicked()
+                    algorithm = Algorithm_Choice.DIJKSTRAS
 
                 # Maze interaction: box clicks
                 elif maze and MAZE_PADDING_LEFT <= x <= MAZE_PADDING_LEFT + MAZE_SIZE and MAZE_PADDING_TOP <= y <= MAZE_PADDING_TOP + MAZE_SIZE\
@@ -235,6 +265,8 @@ def main():
         upload_button.set_enabled(app_state == AppState.MAZE_NOT_LOADED)
         preload_button.set_enabled(app_state == AppState.MAZE_NOT_LOADED)
         unload_button.set_enabled(app_state in (AppState.MAZE_LOADED, AppState.FINISHED))
+        dijkstras_button.set_enabled(algorithm == Algorithm_Choice.A_STAR)
+        a_star_button.set_enabled(algorithm == Algorithm_Choice.DIJKSTRAS)
         # we can add more buttons and enable/disabled them whenever
 
         # == Drawing ==

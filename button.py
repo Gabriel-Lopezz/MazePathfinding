@@ -39,7 +39,10 @@ class Button:
         dimmed_color = tuple(max(c-50,0) for c in self.bg_color)
         pygame.draw.rect(self.screen, dimmed_color, self.rect)
         self.screen.blit(self.text_surface, self.text_rect)
+        pygame.display.flip()
+        
         pygame.time.delay(100)
+
         pygame.draw.rect(self.screen, self.bg_color, self.rect)
         self.screen.blit(self.text_surface, self.text_rect)
         pygame.display.flip()

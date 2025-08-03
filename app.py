@@ -9,6 +9,7 @@ from config import *
 from block import Block, BlockState
 from enum import Enum
 import Algorithms
+from typing import Generator
 
 class AppState(Enum):
     MAZE_NOT_LOADED = 0
@@ -138,26 +139,28 @@ def main():
     '''
     Setup GUI elements. Rendering new objects will be event-based, not per-frame
     '''
-
     screen.fill(WHITE)
 
     upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_button = gui_elements.create_buttons(screen)
+    exec_time_value, blocks_traversed_value, optimal_path_length_value = gui_elements.create_results(screen=screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
-    # trying to work with buttons that show at all times - Andres
     all_buttons = [upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_button]
-
-    [button.draw() for button in all_buttons]
+    all_stats_values = [exec_time_value, blocks_traversed_value, optimal_path_length_value]
 
     pygame.display.flip()
 
-    # Maze drawing variables
+    '''
+    Maze drawing variables
+    '''
     is_maze_drawing = False
-    maze_drawer = None # Generator for drawing
+    maze_animator: Generator[bool] = None # Generator for drawing
     draw_speed = 60 # Default tick rate
 
-    # Loading maze thread and result (array because it is easiest way to deal with returning value from thread)
-    thread_load_maze = None
-    load_maze_result = [] # Will hold maze object when thread is done
+    '''
+    Loading maze thread and result (array because it is easiest way to deal with returning value from thread)
+    '''
+    thread_load_maze: Thread  = None # Thread used for loading maze in background
+    load_maze_result: list[tuple[bool, Maze|str]] = [] # Will hold maze object when thread is done
 
     while running:
         # If we are loading the maze, and have gotten a result, handle the result
@@ -215,8 +218,13 @@ def main():
 
                     if algorithm == Algorithm_Choice.A_STAR:
                         is_maze_drawing = False # Interrupt any current drawing
-                        blocks_explored, final_path = Algorithms.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
-                        maze_drawer = visualize_progressively(maze=maze, explored_inds=blocks_explored, path_inds=final_path)
+                        explored_inds, optimal_path_inds, solve_time = Algorithms.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+
+                        exec_time_value.text = "<0.0001s" if round(solve_time, 4) == 0.0 else str(round(solve_time, 4))
+                        blocks_traversed_value.text = str(len(explored_inds))
+                        optimal_path_length_value.text = str(len(optimal_path_inds))
+
+                        maze_animator = visualize_progressively(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
                         is_maze_drawing = True
 
                     elif algorithm == Algorithm_Choice.DIJKSTRAS:
@@ -229,8 +237,13 @@ def main():
 
                     if algorithm == Algorithm_Choice.A_STAR:
                         is_maze_drawing = False # Interrupt any current drawing
-                        blocks_explored, final_path = Algorithms.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
-                        visualize_instantly(maze=maze, explored_inds=blocks_explored, path_inds=final_path)
+                        explored_inds, optimal_path_inds, solve_time = Algorithms.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+
+                        exec_time_value.text = "<0.0001s" if round(solve_time, 4) == 0.0 else str(round(solve_time, 4))
+                        blocks_traversed_value.text = str(len(explored_inds))
+                        optimal_path_length_value.text = str(len(optimal_path_inds))
+
+                        visualize_instantly(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
 
                     elif algorithm == Algorithm_Choice.DIJKSTRAS:
                         print("Testing")
@@ -260,11 +273,14 @@ def main():
 
         # maze_drawer is the generator called from visualize_progressively
         if is_maze_drawing:
-            is_maze_drawing = next(maze_drawer)
+            is_maze_drawing = next(maze_animator)
 
         # Draw all buttons regardless of state
         for button in all_buttons: 
             button.draw()
+        for stat_values in all_stats_values:
+            stat_values.clear()
+            stat_values.draw()
 
         clock.tick(draw_speed) # tick rate = drawing speed
 

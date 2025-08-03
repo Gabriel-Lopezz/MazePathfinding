@@ -5,7 +5,7 @@ from config import *
 
 class Text:
     def __init__(self, screen: pygame.Surface, text_color: pygame.Color, font_size: int, 
-                 rect: pygame.Rect, text: str = "", font_path=None):
+                 rect: pygame.Rect, text: str = "", font_path=None, center_text = True):
         self.screen = screen
         self.text_color = text_color
         self.rect = rect
@@ -17,13 +17,16 @@ class Text:
             self.font = Font(None, font_size)
 
         self.text_surface = self.font.render(text, True, text_color) # Render onto a surface
-        self.text_rect = self.text_surface.get_rect(center=self.rect.center) # Center the text
+
+        if center_text:
+            self.rect = self.text_surface.get_rect(center=self.rect.center) # Center the text
 
     def draw(self):
         '''
         Draw text onto rect screen using defined rect
         '''
-        self.screen.blit(self.text_surface, self.text_rect)
+        self.text_surface = self.font.render(self.text, True, self.text_color) # Render onto a surface
+        self.screen.blit(self.text_surface, self.rect)
 
     def clear(self):
         '''
@@ -106,8 +109,8 @@ def create_buttons(screen):
     # List of buttons: (button title, background color, extra space after button)
     button_list = [
         ("Upload Maze", LIGHT_SKY_BLUE, 10),
-        ("Use Pre-made", LIGHT_SKY_BLUE, 10),
-        ("Show path taken", LIGHT_SKY_BLUE, 40),
+        ("Use Pre-made", LIGHT_SKY_BLUE, 40),
+        ("Show path taken", LIGHT_SKY_BLUE, 10),
         ("Finish Immediately", LIGHT_SKY_BLUE, 10),
         ("Unload Maze", RED, 30),
         ("A*", RED, 10),
@@ -122,7 +125,7 @@ def create_buttons(screen):
     total_height -= button_list[-1][2]  # removing last gap just in case
 
     # Start Y so the whole group is centered
-    panel_y = (RES_HEIGHT - total_height) // 2
+    panel_y = (RES_HEIGHT - total_height) // 2 - 200
 
     # Create all buttons
     buttons = []
@@ -153,7 +156,8 @@ def create_error_message(screen: pygame.Surface, error_message:str = ""):
     error_txt = Text(
         screen = screen,
         text_color = RED,
-        font_size = NUM_FONT - 10, # Smaller than usual for space
+        font_path="fot-yuruka-std.ttf",
+        font_size = NUM_FONT - 8, # Smaller than usual for space
         rect = pygame.Rect( ERROR_X,
                            ERROR_Y,
                            BUTTON_WIDTH,
@@ -162,3 +166,42 @@ def create_error_message(screen: pygame.Surface, error_message:str = ""):
     )
 
     return error_txt
+
+def create_results(screen: pygame.Surface):
+    labels = ["Execution Time", "Blocks Traversed", "Final Path Length"]
+
+    results = []
+
+    for i in range(len(labels)):
+
+        label_txt = Text(
+            screen = screen,
+            text_color = RED,
+            font_path="fot-yuruka-std.ttf",
+            font_size = NUM_FONT - 5, # Smaller than usual for space
+            rect = pygame.Rect(MAZE_PADDING_LEFT + MAZE_SIZE + 40,
+                            RESULTS_TOP + (BUTTON_HEIGHT * i),
+                            BUTTON_WIDTH,
+                            BUTTON_HEIGHT),
+            text = labels[i] + ": ",
+            center_text = False
+        )
+
+        label_txt.draw()
+
+        result_txt = Text(
+            screen = screen,
+            text_color = RED,
+            font_path="fot-yuruka-std.ttf",
+            font_size = NUM_FONT - 5, # Smaller than usual for space
+            rect = pygame.Rect(MAZE_PADDING_LEFT + MAZE_SIZE + BUTTON_WIDTH + 45,
+                            RESULTS_TOP + (BUTTON_HEIGHT * i),
+                            BUTTON_WIDTH,
+                            BUTTON_HEIGHT),
+            text = "",
+            center_text = False
+        )
+
+        results.append(result_txt)
+
+    return results

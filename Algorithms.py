@@ -81,6 +81,8 @@ def grid_neighbors(grid: list[list], source: tuple[int, int]):
     return nbors
 
 def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
+    start_time = time()
+
     # Dictionary initializer of format: `(coord.x, coord.y): -1`
     f_scores = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
     distances = f_scores.copy()
@@ -135,6 +137,8 @@ def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
                 if nNode == end:
                     endFound = True
                     break
+    
+    solve_time = time() - start_time
 
     if not endFound:
         return explored, []
@@ -146,6 +150,6 @@ def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
         node = predecessors[node]
         final_path.append(node)
     
-    return explored, list(reversed(final_path))
+    return explored, list(reversed(final_path)), solve_time
 
 

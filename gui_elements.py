@@ -4,8 +4,8 @@ from pygame.font import Font
 from config import *
 
 class Text:
-    def __init__(self, screen: pygame.Surface, bg_color: pygame.Color, text_color: pygame.Color, 
-                 font_size: int, rect: pygame.Rect, text: str = "", font_path=None):
+    def __init__(self, screen: pygame.Surface, text_color: pygame.Color, font_size: int, 
+                 rect: pygame.Rect, text: str = "", font_path=None):
         self.screen = screen
         self.text_color = text_color
         self.rect = rect

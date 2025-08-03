@@ -67,6 +67,16 @@ class Maze:
             rect=(MAZE_PADDING_LEFT, MAZE_PADDING_TOP, MAZE_SIZE, MAZE_SIZE)
         )
         pygame.display.flip()
+    
+    def clear_path(self, block_inds: list[tuple[int, int]]):
+        '''
+        Refreshes the blocks at the given indices `block_inds`. (Returns the given blocks path back to OPEN block state)
+        This also visually updates the blocks.
+        '''
+        for row, col in block_inds:
+            cur_block = self.maze_array[row][col]
+            cur_block.set_state(BlockState.OPEN)
+            cur_block.draw()
 
     def maze_from_file(self, file: _io.TextIOWrapper) -> list[list[Block]]:
         maze = []

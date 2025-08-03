@@ -1,5 +1,6 @@
 import pygame
 from pygame.font import Font
+from config import *
 
 class Text:
     def __init__(self, screen: pygame.Surface, bg_color: pygame.Color, text_color: pygame.Color, 
@@ -69,3 +70,105 @@ class Button:
 
     def is_clicked(self, pos):
         return self.enabled and self.rect.collidepoint(pos)
+    
+
+# Method originally from main, here to reduce clutter.
+
+def create_buttons(screen):
+    '''
+    Creates buttons in bulk, can add new buttons, just make sure to add it to return statement
+    '''
+
+    button_width = BUTTON_WIDTH
+    button_height = BUTTON_HEIGHT
+    button_spacing = BUTTON_WIDTH * 0.1
+
+    # Values to properly center Buttons:
+
+    # these align the buttons in line with the maze:
+    BUTTONS_X = MAZE_PADDING_LEFT + MAZE_SIZE + 40
+    BUTTONS_Y = MAZE_PADDING_TOP
+
+    # ===Buttons inside of the Maze Window===#
+    upload_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(LIGHT_SKY_BLUE),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y,
+                           button_width, 
+                           button_height),
+        text = "Upload Maze")
+    
+    preload_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(LIGHT_SKY_BLUE),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y + button_height + button_spacing, # spacing the buttons vertically
+                           button_width, 
+                           button_height),
+        text = "Use Pre-made")
+    
+    print_path_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(LIGHT_SKY_BLUE),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y + 2 * (button_height + button_spacing), # spacing the buttons vertically
+                           button_width, 
+                           button_height),
+        text = "Show path taken")
+    
+    print_finished_path_button = Button (
+        screen = screen,
+        bg_color = pygame.Color(LIGHT_SKY_BLUE),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X,
+                           BUTTONS_Y + 3 * (button_height + button_spacing),
+                           button_width,
+                           button_height),
+        text = "Finish Immediately"
+
+    )
+    
+    #===Buttons outside of the Maze Window===#
+    # unloads maze to show load options again
+    unload_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(RED),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y + 4 * (button_height + button_spacing),
+                           button_width, 
+                           button_height),
+        text = "Unload Maze")
+    
+    a_star_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(RED),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y + 6 * (button_height + button_spacing),
+                           button_width, 
+                           button_height),
+        text = "A*")
+    
+    dijkstras_star_button = Button(
+        screen = screen,
+        bg_color = pygame.Color(RED),
+        text_color = pygame.Color(WHITE),
+        font_size = NUM_FONT,
+        rect = pygame.Rect(BUTTONS_X, 
+                           BUTTONS_Y + 7 * (button_height + button_spacing),
+                           button_width, 
+                           button_height),
+        text = "Dijkstra's")
+
+    return upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_star_button

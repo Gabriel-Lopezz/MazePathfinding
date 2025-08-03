@@ -11,6 +11,10 @@ NUM_FONT = 35
 MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 100  # center and shift 50px left
 MAZE_PADDING_TOP = (RES_HEIGHT - MAZE_SIZE) // 2       # vertically centered
 
+# 
+
+SPEED_FACTOR = 0.15
+
 #==COLORS==# if you change a color, comment what color it is
 BLACK = (0, 0, 0)
 LIGHT_GREY = (211,211,211)

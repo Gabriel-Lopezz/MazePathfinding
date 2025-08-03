@@ -10,11 +10,10 @@ class Text:
         self.rect = rect
         self.text = text
 
+        # Render text with default Font
         self.font = Font(None, font_size)
-        # Render onto a surface; no separate bg in render since we draw our own rect
-        self.text_surface = self.font.render(text, True, text_color)
-        # Center the text inside the given rect
-        self.text_rect = self.text_surface.get_rect(center=self.rect.center)
+        self.text_surface = self.font.render(text, True, text_color) # Render onto a surface
+        self.text_rect = self.text_surface.get_rect(center=self.rect.center) # Center the text
 
     def draw(self):
         """Blit the text surface onto the screen."""
@@ -29,9 +28,11 @@ class Button:
         self.text_color = text_color
         self.rect = rect
         self.text = text
+
+        # Render text with default Font
         self.font = Font(None, font_size)
-        self.text_surface = self.font.render(text, True, text_color, None)
-        self.text_rect = self.text_surface.get_rect(center=(self.rect.centerx, self.rect.centery))
+        self.text_surface = self.font.render(text, True, text_color, None) # Render onto a surface
+        self.text_rect = self.text_surface.get_rect(center=(self.rect.centerx, self.rect.centery)) # Center the text
 
         self.enabled = True
         self.disabled_bg_color = pygame.Color('gray60')

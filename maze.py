@@ -10,7 +10,7 @@ import time
 import threading
 
 class Maze:
-    def __init__(self, maze_file: _io.TextIOWrapper, screen: pygame.Surface, result: list):
+    def __init__(self, maze_file: _io.TextIOWrapper, screen: pygame.Surface):
         '''
         Construct maze from file handle. Appends `self` to result list for threading support
         '''
@@ -31,15 +31,18 @@ class Maze:
         # Graph points include: intersections, turns, dead ends, & start/end points
         self.graph_points = AdjacencyList()
 
-        result.append(self)
-
-    def create_maze(maze_file: _io.TextIOWrapper, screen: pygame.Surface):
+    def create_maze(maze_file: _io.TextIOWrapper, screen: pygame.Surface, result_list: list):
+        '''
+        Attempts to create a maze, adding (successful: bool, MAZE_OUTPUT: Maze|str) to result_list
+        Appends result to a list instead of returning it because it will be used as a worker for thread
+        '''
         try:
             new_maze = Maze(maze_file=maze_file, screen=screen)
         except Exception as maze_exception:
-            return False, str(maze_exception)
+            result_list.append((False, str(maze_exception)))
+            return
 
-        return True, new_maze
+        result_list.append((True, new_maze))
 
     def redraw_blocks(self, blocks: list[Block]):
         blocks_updating = [block.rect for block in blocks]
@@ -99,9 +102,9 @@ class Maze:
             maze_row = []
 
             for col_ind, block_str in enumerate(row):
-                block_char = block_str.strip().lower()
+                block_val = block_str.strip().lower()
 
-                match (block_char):
+                match (block_val):
                     case ".":
                         block_state = BlockState.OPEN
 
@@ -119,7 +122,7 @@ class Maze:
                         ends += 1
 
                     case _:
-                        raise Exception(f"Unknown block char '{block_char}': row {row_ind} col {col_ind}")
+                        raise Exception(f"Unknown block value '{block_val}': row {row_ind} col {col_ind}")
                 
                 cur_block = Block(self.block_length, block_state, row_ind, col_ind, self.screen)
                 maze_row.append(cur_block)

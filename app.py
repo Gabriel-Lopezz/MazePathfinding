@@ -75,7 +75,6 @@ def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], pa
                 block.draw()
             
             yield True
-        print("STILL IN")
         
         for i in range(0, len(path_inds), blocks_per_frame):
             for j in range(blocks_per_frame):
@@ -161,12 +160,20 @@ def main():
     load_maze_result = [] # Will hold maze object when thread is done
 
     while running:
+        # If we are loading the maze, and have gotten a result, handle the result
         if thread_load_maze and len(load_maze_result) > 0:
-            print("GOT IT")
-            maze = load_maze_result[0] # 
-            app_state, draw_speed = render_maze(maze=maze)
+            load_status, maze_output = load_maze_result[0]
+            print("Finished loading, STATUS:", load_status)
+
+            if load_status: # If successful
+                maze = maze_output
+                app_state, draw_speed = render_maze(maze=maze)
+            else:
+                err_msg = "ERROR: " + maze_output
+                error_txt = gui_elements.create_error_message(screen=screen, error_message=err_msg)
+                error_txt.draw()
             
-            #cleanup
+            # Clean up thread variables
             thread_load_maze = None
             load_maze_result.clear()
 
@@ -184,14 +191,14 @@ def main():
                     maze_file = prompt_file()
 
                     if maze_file:
-                        thread_load_maze = Thread(target=Maze, args=(maze_file, screen, load_maze_result))
+                        thread_load_maze = Thread(target=Maze.create_maze, args=(maze_file, screen, load_maze_result))
                         thread_load_maze.start()
 
                 elif preload_button.is_clicked((x, y)):
                     preload_button.clicked()
 
                     maze_file = open("PreMade_Mazes/10x10_Maze1.csv", "r")
-                    thread_load_maze = Thread(target=Maze, args=(maze_file, screen, load_maze_result))
+                    thread_load_maze = Thread(target=Maze.create_maze, args=(maze_file, screen, load_maze_result))
                     thread_load_maze.start()
                         
                 elif unload_button.is_clicked((x, y)):

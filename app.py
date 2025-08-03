@@ -40,11 +40,10 @@ def prompt_file():
 
     return file_info
 
-def create_maze(file):
-    return Maze()
 
 # render_maze logic:
-# 
+# sets the max frame rate given the dimensions of our maze (rowsxcols),
+# multiplies a speed factor to better control drawing speed.
 
 def render_maze(maze: Maze):
     maze.draw()

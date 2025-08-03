@@ -3,10 +3,9 @@ from pygame.font import Font
 from config import *
 
 class Text:
-    def __init__(self, screen: pygame.Surface, bg_color: pygame.Color, text_color: pygame.Color, 
+    def __init__(self, screen: pygame.Surface, text_color: pygame.Color, 
                  font_size: int, rect: pygame.Rect, text: str = ""):
         self.screen = screen
-        self.bg_color = bg_color
         self.text_color = text_color
         self.rect = rect
         self.text = text
@@ -17,8 +16,16 @@ class Text:
         self.text_rect = self.text_surface.get_rect(center=self.rect.center) # Center the text
 
     def draw(self):
-        """Blit the text surface onto the screen."""
+        '''
+        Draw text onto rect screen using defined rect
+        '''
         self.screen.blit(self.text_surface, self.text_rect)
+
+    def clear(self):
+        '''
+        Draws a white rect over the text
+        '''
+        pygame.draw.rect(self.screen, WHITE, self.rect)
 
 class Button:
 
@@ -172,3 +179,20 @@ def create_buttons(screen):
         text = "Dijkstra's")
 
     return upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_star_button
+
+def create_error_message(screen: pygame.Surface, error_message:str = ""):
+    ERROR_X = MAZE_PADDING_LEFT + MAZE_SIZE + 125
+    ERROR_Y = MAZE_PADDING_TOP + 750
+
+    error_txt = Text(
+        screen = screen,
+        text_color = RED,
+        font_size = NUM_FONT - 10, # Smaller than usual for space
+        rect = pygame.Rect( ERROR_X,
+                           ERROR_Y,
+                           BUTTON_WIDTH,
+                           BUTTON_HEIGHT),
+        text = error_message
+    )
+
+    return error_txt

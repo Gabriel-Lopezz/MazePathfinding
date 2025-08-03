@@ -1,6 +1,25 @@
 import pygame
 from pygame.font import Font
 
+class Text:
+    def __init__(self, screen: pygame.Surface, bg_color: pygame.Color, text_color: pygame.Color, 
+                 font_size: int, rect: pygame.Rect, text: str = ""):
+        self.screen = screen
+        self.bg_color = bg_color
+        self.text_color = text_color
+        self.rect = rect
+        self.text = text
+
+        self.font = Font(None, font_size)
+        # Render onto a surface; no separate bg in render since we draw our own rect
+        self.text_surface = self.font.render(text, True, text_color)
+        # Center the text inside the given rect
+        self.text_rect = self.text_surface.get_rect(center=self.rect.center)
+
+    def draw(self):
+        """Blit the text surface onto the screen."""
+        self.screen.blit(self.text_surface, self.text_rect)
+
 class Button:
 
     def __init__(self, screen: pygame.surface, bg_color: pygame.Color, text_color: pygame.Color,

@@ -3,7 +3,7 @@ import tkinter
 from tkinter import filedialog
 import sys
 from threading import Thread
-from button import Button
+from gui_elements import Button
 from maze import Maze
 from config import *
 from block import Block, BlockState
@@ -56,9 +56,9 @@ def create_buttons(screen):
     Creates buttons in bulk, can add new buttons, just make sure to add it to return statement
     '''
 
-    button_width = WINDOW_SIZE * 0.2
-    button_height = WINDOW_SIZE * 0.06
-    button_spacing = WINDOW_SIZE * 0.02
+    button_width = BUTTON_WIDTH
+    button_height = BUTTON_HEIGHT
+    button_spacing = BUTTON_WIDTH * 0.1
 
     # Values to properly center Buttons:
 
@@ -236,7 +236,7 @@ def main():
                     app_state = AppState.MAZE_NOT_LOADED
                     is_maze_drawing = False
                 
-                elif print_path_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.NONE:
+                elif print_path_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.NONE and app_state != AppState.MAZE_NOT_LOADED:
                     print_path_button.clicked()
 
                     if algorithm == Algorithm_Choice.A_STAR:

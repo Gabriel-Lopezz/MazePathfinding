@@ -1,19 +1,15 @@
 #==SIZES==#
-WINDOW_SIZE = 900
-MAZE_SIZE = 500
-NUM_FONT = WINDOW_SIZE // 25
+RES_WIDTH = 1500
+RES_HEIGHT = 1000
+MAZE_SIZE = 1000
 
-#For mazes of size 1000x1000
-WINDOW_SIZE_LARGE_HEIGHT = 1000
-WINDOW_SIZE_LARGE_WIDTH = 1500
-MAZE_SIZE_LARGE = 1000
+BUTTON_WIDTH = 200
+BUTTON_HEIGHT = 55
+NUM_FONT = 35
 
-# re-sizing tests:
-RES_WIDTH = 1000
-RES_HEIGHT = 700
+# Padding
 MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 100  # center and shift 50px left
 MAZE_PADDING_TOP = (RES_HEIGHT - MAZE_SIZE) // 2       # vertically centered
-
 
 #==COLORS==# if you change a color, comment what color it is
 BLACK = (0, 0, 0)

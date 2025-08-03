@@ -3,7 +3,7 @@ import pygame
 import _io
 from typing import Iterable
 from AdjacencyList import AdjacencyList
-from config import *
+from constants import *
 from collections import deque
 from block import Block, BlockState
 import time
@@ -69,7 +69,6 @@ class Maze:
             color=WHITE,
             rect=(MAZE_PADDING_LEFT, MAZE_PADDING_TOP, MAZE_SIZE, MAZE_SIZE)
         )
-        pygame.display.flip()
     
     def clear_path(self, block_inds: list[tuple[int, int]]):
         '''
@@ -78,7 +77,14 @@ class Maze:
         '''
         for row, col in block_inds:
             cur_block = self.maze_array[row][col]
-            cur_block.set_state(BlockState.OPEN)
+
+            if (row, col) == self.start_coord:
+                cur_block.set_state(BlockState.START)
+            elif (row, col) == self.end_coord:
+                cur_block.set_state(BlockState.END)
+            else:
+                cur_block.set_state(BlockState.OPEN)
+            
             cur_block.draw()
 
     def maze_from_file(self, file: _io.TextIOWrapper) -> list[list[Block]]:

@@ -1,7 +1,7 @@
 import pygame
 import os
 from pygame.font import Font
-from config import *
+from constants import *
 
 class Text:
     def __init__(self, screen: pygame.Surface, text_color: pygame.Color, font_size: int, 

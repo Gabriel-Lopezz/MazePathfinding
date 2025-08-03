@@ -51,8 +51,8 @@ def log_time_decorator(func):
 #
 #     return True
 
-# A* Section
-def scaled_heuristic(start: tuple[int, int], goal: tuple[int, int], scale_factor: int):
+# GBFS Section
+def heuristic(start: tuple[int, int], goal: tuple[int, int]):
     '''
     Calculate heuristic based on 4-Directional Manhattan Distance formula.
     scale_factor is used to scale the heuristic for tie-breaking. 
@@ -62,7 +62,7 @@ def scaled_heuristic(start: tuple[int, int], goal: tuple[int, int], scale_factor
     dx = abs(goal[0] - start[0])
     dy = abs(goal[1] - start[1])
 
-    return (dx + dy) * scale_factor
+    return (dx + dy)
 
 def grid_neighbors(grid: list[list], source: tuple[int, int]):
     row, col = source[0], source[1]
@@ -80,20 +80,15 @@ def grid_neighbors(grid: list[list], source: tuple[int, int]):
 
     return nbors
 
-def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
+def geedy_best_first_search(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
     start_time = time()
 
     # Dictionary initializer of format: `(coord.x, coord.y): -1`
-    f_scores = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
-    distances = f_scores.copy()
-    distances[start] = 0
-
-    # heuristic scale factor:
-    h_scale_factor = len(maze_grid) * len(maze_grid[0])
+    h_scores = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
     
     # Start block parameters
-    start_h = scaled_heuristic(start=start, goal=end, scale_factor=h_scale_factor)
-    f_scores[start] = start_h
+    start_h = heuristic(start=start, goal=end)
+    h_scores[start] = start_h
 
     # min heap for available routes, first element based ordering 
     frontier = [(start_h, start)]
@@ -104,16 +99,18 @@ def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
     endFound = False
 
     while len(frontier) > 0 and not endFound:
-        curF, curNode = heapq.heappop(frontier)
+        curH, curNode = heapq.heappop(frontier)
 
-        if curNode == end: # First path to end will always be shortest; safe to break
-            break
+        # Add to the list of explored blocks
+        explored.append(curNode)
 
         # If this path is worse than the current best, skip it
-        if f_scores[curNode] != -1 and curF > f_scores[curNode]:
+        if h_scores[curNode] != -1 and curH > h_scores[curNode]:
             continue
 
-        explored.append(curNode) # Add to the list of explored blocks
+        if curNode == end: # First path to end will always be shortest; safe to break
+            endFound = True
+            break
 
         # Process neighbors
         for nDist, nNode in grid_neighbors(grid=maze_grid, source=curNode):
@@ -124,26 +121,19 @@ def a_star(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
                 continue
 
             # calculate neighboring f score
-            g = distances[curNode] + nDist
-            h = scaled_heuristic(start=nNode, goal=end, scale_factor=h_scale_factor)
-            f = g + h
+            h = heuristic(start=nNode, goal=end)
             
-            if f_scores[nNode] == -1 or f < f_scores[nNode]:
-                distances[nNode] = g
-                f_scores[nNode] = f
-                heapq.heappush(frontier, (f, nNode))
+            if h_scores[nNode] == -1 or h < h_scores[nNode]:
+                h_scores[nNode] = h
+                heapq.heappush(frontier, (h, nNode))
                 predecessors[nNode] = curNode
-                
-                if nNode == end:
-                    endFound = True
-                    break
     
     solve_time = time() - start_time
 
     if not endFound:
         return explored, []
     
-    final_path = []
+    final_path = [end]
 
     node = end
     while node in predecessors:

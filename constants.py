@@ -13,7 +13,7 @@ RESULTS_TOP = 600
 MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 200  # center and shift 50px left
 MAZE_PADDING_TOP = (RES_HEIGHT - MAZE_SIZE) // 2       # vertically centered
 
-# Drawing algorithm traversal
+# Drawing algorithm traversal speed relative to maze size
 SPEED_FACTOR = 0.15
 
 #==COLORS==# if you change a color, comment what color it is
@@ -27,11 +27,11 @@ AQUA = (0,255,255)
 LIGHT_SKY_BLUE = (135,206,250)
 WHITE = (255,255,255)
 
-START_COLOR =  FOREST_GREEN
-END_COLOR =  YELLOW
+START_COLOR =  YELLOW
+END_COLOR =  RED
 PATH_COLOR =  LIGHT_GREY
 EXPLORED_COLOR = DARKER_GREY
-FINAL_PATH_COLOR = START_COLOR
+FINAL_PATH_COLOR = FOREST_GREEN
 WALL_COLOR = BLACK
 INTERSECTION_COLOR = AQUA
 

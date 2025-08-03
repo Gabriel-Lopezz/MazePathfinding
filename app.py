@@ -3,13 +3,13 @@ import tkinter
 from tkinter import filedialog
 import sys
 from threading import Thread
-import gui_elements
+import gui
 from maze import Maze
-from config import *
+from constants import *
 from block import Block, BlockState
 from enum import Enum
-import Algorithms
-from typing import Generator
+import algorithms
+from typing import Generator, Callable
 
 class AppState(Enum):
     MAZE_NOT_LOADED = 0
@@ -54,62 +54,80 @@ def render_maze(maze: Maze):
 
     return app_state, max_frame_rate
 
-def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
-    maze.clear_path(explored_inds)
+def execute_and_display_stats(maze: Maze, algorithm: Callable, exec_time_value: gui.Text, blocks_traversed_value: gui.Text, optimal_path_length_value: gui.Text):
+    explored_inds, optimal_path_inds, solve_time = algorithm(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+
+    exec_time_value.text = "<0.0001s" if round(solve_time, 4) == 0.0 else str(round(solve_time, 4))
+    blocks_traversed_value.text = str(len(explored_inds))
+    optimal_path_length_value.text = str(len(optimal_path_inds))
+    return explored_inds,optimal_path_inds
+
+def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]], speed: str):
+    l = len(explored_inds)
+    maze.clear_path(explored_inds[1:l]) # Clear previous paths drawn
 
     maze_grid = maze.maze_array
 
-    blocks_per_frame = len(maze_grid) // 20
-    threshold = 100
+    # Calculate blocks per frame for animation speed-up relative to grid size
+    assert speed in ("slow", "medium", "fast"), "Speed value MUST be of: 'slow' 'medium' 'fast'"
 
-    # Logic for sped-up drawing for mazes 100x100 or greater
-    if len(maze_grid) >= threshold:
-        for i in range(0, len(explored_inds), blocks_per_frame):
-            for j in range(blocks_per_frame):
-                ind = i + j
-                if ind >= len(explored_inds):
-                    break
+    blocks_per_frame: int
 
-                row, col = explored_inds[ind]
-                block = maze_grid[row][col]
-                block.set_state(BlockState.EXPLORED)
-                block.draw()
-            
-            yield True
-        
-        for i in range(0, len(path_inds), blocks_per_frame):
-            for j in range(blocks_per_frame):
-                ind = i + j
-                if ind >= len(path_inds):
-                    break
+    threshold = 100 # Threshold value for what is considered 'large' maze
 
-                row, col = path_inds[ind]
-                block = maze_grid[row][col]
-                block.set_state(BlockState.FINAL)
-                block.draw()
-
-            yield True
+    # Determine blocks drawn per fram based on speed and maze size
+    if len(maze_grid) < threshold:
+        match(speed):
+            case "slow":
+                blocks_per_frame = 1
+            case "medium":
+                blocks_per_frame = 2
+            case "fast":
+                blocks_per_frame = 3
     else:
-        for row, col in explored_inds:
+        match(speed):
+            case "slow":
+                blocks_per_frame = 1
+            case "medium":
+                blocks_per_frame = int(len(explored_inds) * 0.1)
+            case "fast":
+                blocks_per_frame = int(len(explored_inds) * 0.2)
+
+    # Logic for drawing mazes, yields if we are still drawing (draws between start and end)
+    for i in range(0, len(explored_inds) - 1, blocks_per_frame):
+        for j in range(blocks_per_frame):
+            ind = i + j
+            if ind >= len(explored_inds) - 1:
+                break
+
+            row, col = explored_inds[ind]
             block = maze_grid[row][col]
             block.set_state(BlockState.EXPLORED)
             block.draw()
-
-            yield True
         
-        for row, col in path_inds:
+        yield True
+    
+    for i in range(1, len(path_inds) - 1, blocks_per_frame):
+        for j in range(blocks_per_frame):
+            ind = i + j
+            if ind >= len(path_inds) - 1:
+                break
+
+            row, col = path_inds[ind]
             block = maze_grid[row][col]
             block.set_state(BlockState.FINAL)
             block.draw()
 
-            yield True
+        yield True
 
     yield False
 
 def visualize_instantly(maze: Maze, explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
-    maze.clear_path(explored_inds)
+    l = len(explored_inds)
+    maze.clear_path(explored_inds[1:l])
 
-    for row, col in path_inds:
+    for i in range(0, len(path_inds)):
+        row, col = path_inds[i]
         block = maze.maze_array[row][col]
         block.set_state(BlockState.FINAL)
         block.draw()
@@ -141,20 +159,27 @@ def main():
     '''
     screen.fill(WHITE)
 
-    upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_button = gui_elements.create_buttons(screen)
-    exec_time_value, blocks_traversed_value, optimal_path_length_value = gui_elements.create_results(screen=screen)
+    upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_button = gui.create_buttons(screen)
+    exec_time_value, blocks_traversed_value, optimal_path_length_value = gui.create_results(screen=screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
     all_buttons = [upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_button]
-    all_stats_values = [exec_time_value, blocks_traversed_value, optimal_path_length_value]
+    all_stats_values: list[gui.Text] = [exec_time_value, blocks_traversed_value, optimal_path_length_value]
 
     pygame.display.flip()
+
+    '''
+    Algorithm traversal path outputs
+    '''
+
+    explored_inds = []
+    optimal_path_inds = []
 
     '''
     Maze drawing variables
     '''
     is_maze_drawing = False
     maze_animator: Generator[bool] = None # Generator for drawing
-    draw_speed = 60 # Default tick rate
+    target_frame_rate = 60 # Default frame rate; frame rate ~ animation speed
 
     '''
     Loading maze thread and result (array because it is easiest way to deal with returning value from thread)
@@ -170,10 +195,10 @@ def main():
 
             if load_status: # If successful
                 maze = maze_output
-                app_state, draw_speed = render_maze(maze=maze)
+                app_state, target_frame_rate = render_maze(maze=maze)
             else:
                 err_msg = "ERROR: " + maze_output
-                error_txt = gui_elements.create_error_message(screen=screen, error_message=err_msg)
+                error_txt = gui.create_error_message(screen=screen, error_message=err_msg)
                 error_txt.draw()
             
             # Clean up thread variables
@@ -207,8 +232,17 @@ def main():
                 elif unload_button.is_clicked((x, y)):
                     unload_button.clicked()
 
+                    # Clear maze of its data and visually remove 
                     if maze:
                         maze.clear()
+
+                    # Empty algorithm path outputs
+                    explored_inds = []
+                    optimal_path_inds = []
+                    
+                    # Clear the text from our result stats
+                    for stat in all_stats_values:
+                        stat.text = ""
 
                     app_state = AppState.MAZE_NOT_LOADED
                     is_maze_drawing = False
@@ -218,13 +252,12 @@ def main():
 
                     if algorithm == Algorithm_Choice.A_STAR:
                         is_maze_drawing = False # Interrupt any current drawing
-                        explored_inds, optimal_path_inds, solve_time = Algorithms.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+                        maze.clear_path(explored_inds) # Remove any paths marked
 
-                        exec_time_value.text = "<0.0001s" if round(solve_time, 4) == 0.0 else str(round(solve_time, 4))
-                        blocks_traversed_value.text = str(len(explored_inds))
-                        optimal_path_length_value.text = str(len(optimal_path_inds))
+                        explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=algorithms.geedy_best_first_search, exec_time_value=exec_time_value, 
+                                                                                     blocks_traversed_value=blocks_traversed_value, optimal_path_length_value=optimal_path_length_value)
 
-                        maze_animator = visualize_progressively(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
+                        maze_animator = visualize_progressively(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds, speed="slow")
                         is_maze_drawing = True
 
                     elif algorithm == Algorithm_Choice.DIJKSTRAS:
@@ -237,11 +270,10 @@ def main():
 
                     if algorithm == Algorithm_Choice.A_STAR:
                         is_maze_drawing = False # Interrupt any current drawing
-                        explored_inds, optimal_path_inds, solve_time = Algorithms.a_star(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+                        maze.clear_path(explored_inds) # Remove any paths marked
 
-                        exec_time_value.text = "<0.0001s" if round(solve_time, 4) == 0.0 else str(round(solve_time, 4))
-                        blocks_traversed_value.text = str(len(explored_inds))
-                        optimal_path_length_value.text = str(len(optimal_path_inds))
+                        explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=algorithms.geedy_best_first_search, exec_time_value=exec_time_value, 
+                                                                                     blocks_traversed_value=blocks_traversed_value, optimal_path_length_value=optimal_path_length_value)
 
                         visualize_instantly(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
 
@@ -278,17 +310,17 @@ def main():
         # Draw all buttons regardless of state
         for button in all_buttons: 
             button.draw()
+        
         for stat_values in all_stats_values:
             stat_values.clear()
             stat_values.draw()
 
-        clock.tick(draw_speed) # tick rate = drawing speed
+        clock.tick(target_frame_rate)
 
         pygame.display.flip()
 
     pygame.quit()
     sys.exit()
-
 
 if __name__ == "__main__":
     main()

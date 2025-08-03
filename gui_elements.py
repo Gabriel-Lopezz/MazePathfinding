@@ -1,17 +1,21 @@
 import pygame
+import os
 from pygame.font import Font
 from config import *
 
 class Text:
-    def __init__(self, screen: pygame.Surface, text_color: pygame.Color, 
-                 font_size: int, rect: pygame.Rect, text: str = ""):
+    def __init__(self, screen: pygame.Surface, bg_color: pygame.Color, text_color: pygame.Color, 
+                 font_size: int, rect: pygame.Rect, text: str = "", font_path=None):
         self.screen = screen
         self.text_color = text_color
         self.rect = rect
         self.text = text
 
-        # Render text with default Font
-        self.font = Font(None, font_size)
+        if font_path:
+            self.font = pygame.font.Font(font_path, font_size)
+        else:
+            self.font = Font(None, font_size)
+
         self.text_surface = self.font.render(text, True, text_color) # Render onto a surface
         self.text_rect = self.text_surface.get_rect(center=self.rect.center) # Center the text
 
@@ -30,7 +34,7 @@ class Text:
 class Button:
 
     def __init__(self, screen: pygame.surface, bg_color: pygame.Color, text_color: pygame.Color,
-                 font_size: int, rect: pygame.Rect, text: str = ""):
+                 font_size: int, rect: pygame.Rect, text: str = "", font_path=None):
         self.screen = screen
         self.bg_color = bg_color #background color
         self.text_color = text_color
@@ -44,12 +48,6 @@ class Button:
 
         self.enabled = True
         self.disabled_bg_color = pygame.Color('gray60')
-    
-    def set_enabled(self, enabled: bool):
-        self.enabled = enabled
-
-    def is_enabled(self):
-        return self.enabled
 
     def draw(self):
         if self.enabled:
@@ -59,11 +57,18 @@ class Button:
 
         pygame.draw.rect(self.screen, color, self.rect)
         self.screen.blit(self.text_surface, self.text_rect)
+    
+    def set_enabled(self, enabled: bool):
+        self.enabled = enabled
+
+    def is_enabled(self):
+        return self.enabled
 
     '''Makes the button color lighter for a bit, simulating a button being clicked'''
     def clicked(self):
         if not self.enabled:
             return
+        
         dimmed_color = tuple(max(c-50,0) for c in self.bg_color)
         pygame.draw.rect(self.screen, dimmed_color, self.rect)
         self.screen.blit(self.text_surface, self.text_rect)
@@ -73,6 +78,7 @@ class Button:
 
         pygame.draw.rect(self.screen, self.bg_color, self.rect)
         self.screen.blit(self.text_surface, self.text_rect)
+
         pygame.display.flip()
 
     def is_clicked(self, pos):
@@ -86,99 +92,56 @@ def create_buttons(screen):
     Creates buttons in bulk, can add new buttons, just make sure to add it to return statement
     '''
 
+    # === Load custom font ===
+    font_path = "fot-yuruka-std.ttf"
+
+    # Position to the right of the maze
+    panel_x = MAZE_PADDING_LEFT + MAZE_SIZE + 40
     button_width = BUTTON_WIDTH
     button_height = BUTTON_HEIGHT
-    button_spacing = BUTTON_WIDTH * 0.1
 
-    # Values to properly center Buttons:
+    # List of buttons: (button title, background color, extra space after button)
+    button_list = [
+        ("Upload Maze", LIGHT_SKY_BLUE, 10),
+        ("Use Pre-made", LIGHT_SKY_BLUE, 10),
+        ("Show path taken", LIGHT_SKY_BLUE, 40),
+        ("Finish Immediately", LIGHT_SKY_BLUE, 10),
+        ("Unload Maze", RED, 30),
+        ("A*", RED, 10),
+        ("Dijkstra's", RED, 0),
+    ]
 
-    # these align the buttons in line with the maze:
-    BUTTONS_X = MAZE_PADDING_LEFT + MAZE_SIZE + 40
-    BUTTONS_Y = MAZE_PADDING_TOP
+    # Calculate total height to center them vertically
+    total_height = 0
+    for item in button_list:
+        label, color, gap_after = item
+        total_height += button_height + gap_after
+    total_height -= button_list[-1][2]  # removing last gap just in case
 
-    # ===Buttons inside of the Maze Window===#
-    upload_button = Button(
-        screen = screen,
-        bg_color = pygame.Color(LIGHT_SKY_BLUE),
-        text_color = pygame.Color(WHITE),
-        font_size = NUM_FONT,
-        rect = pygame.Rect(BUTTONS_X, 
-                           BUTTONS_Y,
-                           button_width, 
-                           button_height),
-        text = "Upload Maze")
-    
-    preload_button = Button(
-        screen = screen,
-        bg_color = pygame.Color(LIGHT_SKY_BLUE),
-        text_color = pygame.Color(WHITE),
-        font_size = NUM_FONT,
-        rect = pygame.Rect(BUTTONS_X, 
-                           BUTTONS_Y + button_height + button_spacing, # spacing the buttons vertically
-                           button_width, 
-                           button_height),
-        text = "Use Pre-made")
-    
-    print_path_button = Button(
-        screen = screen,
-        bg_color = pygame.Color(LIGHT_SKY_BLUE),
-        text_color = pygame.Color(WHITE),
-        font_size = NUM_FONT,
-        rect = pygame.Rect(BUTTONS_X, 
-                           BUTTONS_Y + 2 * (button_height + button_spacing), # spacing the buttons vertically
-                           button_width, 
-                           button_height),
-        text = "Show path taken")
-    
-    print_finished_path_button = Button (
-        screen = screen,
-        bg_color = pygame.Color(LIGHT_SKY_BLUE),
-        text_color = pygame.Color(WHITE),
-        font_size = NUM_FONT,
-        rect = pygame.Rect(BUTTONS_X,
-                           BUTTONS_Y + 3 * (button_height + button_spacing),
-                           button_width,
-                           button_height),
-        text = "Finish Immediately"
+    # Start Y so the whole group is centered
+    panel_y = (RES_HEIGHT - total_height) // 2
 
-    )
-    
-    #===Buttons outside of the Maze Window===#
-    # unloads maze to show load options again
-    unload_button = Button(
-        screen = screen,
-        bg_color = pygame.Color(RED),
-        text_color = pygame.Color(WHITE),
-        font_size = NUM_FONT,
-        rect = pygame.Rect(BUTTONS_X, 
-                           BUTTONS_Y + 4 * (button_height + button_spacing),
-                           button_width, 
-                           button_height),
-        text = "Unload Maze")
-    
-    a_star_button = Button(
-        screen = screen,
-        bg_color = pygame.Color(RED),
-        text_color = pygame.Color(WHITE),
-        font_size = NUM_FONT,
-        rect = pygame.Rect(BUTTONS_X, 
-                           BUTTONS_Y + 6 * (button_height + button_spacing),
-                           button_width, 
-                           button_height),
-        text = "A*")
-    
-    dijkstras_star_button = Button(
-        screen = screen,
-        bg_color = pygame.Color(RED),
-        text_color = pygame.Color(WHITE),
-        font_size = NUM_FONT,
-        rect = pygame.Rect(BUTTONS_X, 
-                           BUTTONS_Y + 7 * (button_height + button_spacing),
-                           button_width, 
-                           button_height),
-        text = "Dijkstra's")
+    # Create all buttons
+    buttons = []
+    current_y = panel_y
+    for item in button_list:
+        button_title, color, gap_after = item
+        # Create the Button object with custom font path
+        new_button = Button(
+            screen=screen,
+            bg_color=pygame.Color(color),
+            text_color=pygame.Color(WHITE),
+            font_size=NUM_FONT,
+            rect=pygame.Rect(panel_x, current_y, button_width, button_height),
+            text=button_title,
+            font_path=font_path   # <-- Added custom font
+        )
+        buttons.append(new_button)
 
-    return upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_star_button
+        # Move down for the next button
+        current_y += button_height + gap_after
+
+    return tuple(buttons)
 
 def create_error_message(screen: pygame.Surface, error_message:str = ""):
     ERROR_X = MAZE_PADDING_LEFT + MAZE_SIZE + 125

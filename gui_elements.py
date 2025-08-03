@@ -34,8 +34,11 @@ class Button:
         self.rect = rect
         self.text = text
 
-        # Render text with default Font
-        self.font = Font(None, font_size)
+        if font_path:
+            self.font = pygame.font.Font(font_path, font_size)
+        else:
+            self.font = Font(None, font_size)
+
         self.text_surface = self.font.render(text, True, text_color, None) # Render onto a surface
         self.text_rect = self.text_surface.get_rect(center=(self.rect.centerx, self.rect.centery)) # Center the text
 

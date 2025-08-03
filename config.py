@@ -5,7 +5,7 @@ MAZE_SIZE = 1000
 
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 55
-NUM_FONT = 35
+NUM_FONT = 20
 
 # Padding
 MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 100  # center and shift 50px left

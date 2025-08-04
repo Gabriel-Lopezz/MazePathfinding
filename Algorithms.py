@@ -145,13 +145,40 @@ def geedy_best_first_search(maze: Maze):
     
     return explored, list(reversed(final_path)), solve_time
 
+def expand_path(maze: Maze, node_a: tuple[int, int], node_b: tuple[int, int]) -> list[tuple[int, int]]:
+    """
+    Expands a straight corridor between two graph points into all intermediate coordinates.
+    node_a, node_b are (row, col) tuples.
+    """
+    expanded = [node_a]
+    r1, c1 = node_a
+    r2, c2 = node_b
+
+    dr = 0 if r1 == r2 else (1 if r2 > r1 else -1)
+    dc = 0 if c1 == c2 else (1 if c2 > c1 else -1)
+
+    r, c = r1, c1
+    while (r, c) != (r2, c2):
+        r += dr
+        c += dc
+        if maze.maze_array[r][c].state != BlockState.WALL:
+            expanded.append((r, c))
+        else:
+            raise RuntimeError(f"Wall encountered in expanded path at {(r, c)}")
+
+    return expanded
+
 def Dijkstra(maze: Maze):
     """
-    Runs Dijkstra's shortest path algorithm on the maze's adjacency list.
+    Runs Dijkstra's shortest path algorithm on the maze's adjacency list,
+    but expands graph edges into full maze corridors for visualization.
     Returns:
         explored: list of (row, col) coordinates visited in order
         final_path: list of (row, col) coordinates in the shortest path
+        solve_time: time taken to solve
     """
+    import heapq
+    from time import time
 
     start_time = time()
 
@@ -170,7 +197,7 @@ def Dijkstra(maze: Maze):
 
     if start_id is None or end_id is None:
         print("Start or end not found in graph.")
-        return [], []
+        return [], [], 0
 
     # Distance to each vertex (default = infinity)
     dist = {v: float("inf") for v in graph}
@@ -186,16 +213,17 @@ def Dijkstra(maze: Maze):
     while pq:
         cur_dist, u = heapq.heappop(pq)
 
-        # If we've reached the end, stop early
         if u == end_id:
             break
-
-        # Skip if we've already found a shorter path
         if cur_dist > dist[u]:
             continue
 
-        # Mark as explored
-        explored.append(id_to_coord[u])
+        # Mark explored: expand path from previous node if it exists
+        if u in prev:
+            expanded_corridor = expand_path(maze, id_to_coord[prev[u]], id_to_coord[u])
+            explored.extend(expanded_corridor[1:])  # skip first because already visited
+        else:
+            explored.append(id_to_coord[u])  # start node
 
         # Relax edges
         for neighbor, weight in graph[u]:
@@ -204,16 +232,25 @@ def Dijkstra(maze: Maze):
                 dist[neighbor] = new_dist
                 prev[neighbor] = u
                 heapq.heappush(pq, (new_dist, neighbor))
-    
+
     solve_time = time() - start_time
 
-    # --- Path reconstruction ---
-    final_path = []
+    # Path reconstruction
+    path_nodes = []
     cur = end_id
     while cur in prev:
-        final_path.append(id_to_coord[cur])
+        path_nodes.append(id_to_coord[cur])
         cur = prev[cur]
-    final_path.append(start_coord)  # include the start
-    final_path.reverse()
+    path_nodes.append(start_coord)
+    path_nodes.reverse()
+
+    # Expand final_path to include all corridor cells
+    final_path = []
+    for i in range(len(path_nodes) - 1):
+        expanded_corridor = expand_path(maze, path_nodes[i], path_nodes[i + 1])
+        if final_path:
+            final_path.extend(expanded_corridor[1:])  # avoid duplicate point
+        else:
+            final_path.extend(expanded_corridor)
 
     return explored, final_path, solve_time

@@ -60,7 +60,7 @@ def execute_and_display_stats(maze: Maze, algorithm_used: Callable, algorithm_va
 
 
 
-    algorithm_value.text = "Greedy BFS" if algorithm_used == Algorithms.a_star else "Dijkstra's"
+    algorithm_value.text = "A*" if algorithm_used == Algorithms.a_star else "Dijkstra's"
     if round(solve_time, 4) == 0.0:
         exec_time_value.text = "<0.0001s"
     else:

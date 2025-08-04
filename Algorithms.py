@@ -7,8 +7,6 @@ import heapq
 def heuristic(source: tuple[int, int], goal: tuple[int, int]):
     '''
     Calculate heuristic based on 4-Directional Manhattan Distance formula
-    scale_factor is used to scale the heuristic for tie-breaking
-        Should be no more (1 + 1/(expected maximum path length)) for our use case
     '''
 
     dx = abs(goal[0] - source[0])

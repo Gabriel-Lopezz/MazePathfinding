@@ -161,7 +161,7 @@ class Maze:
     def is_valid_graph_point(self, center: tuple, adjacents : list[tuple[int,int]]):
         '''
             a valid graph point is either a start/end point, intersection, turn, or dead-end
-            # A coordinate has an intersection if it has more than 3 neighbors
+            A coordinate has an intersection if it has more than 3 neighbors
             A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
         '''
         y,x = center
@@ -191,6 +191,8 @@ class Maze:
             when it gets to a valid graph point, it will add it to the graph
         '''
         start_y, start_x = start_point
+        if start_point == (45, 8):
+            print("Corridors walked: for 231")
         # 0s are there so only either the x or y coordinate is changed in one loop
         dx = [1, -1, 0, 0]  # right, left
         dy = [0, 0, 1, -1]  # down, up
@@ -204,20 +206,24 @@ class Maze:
                     or current_x >= self.cols or current_y >= self.rows
                     or self.maze_array[current_y][current_x].state == BlockState.WALL):
                 continue
-
+            
             while True:
                 # to check if it is a valid graph point
                 current_adjacents = self.get_adjacent((current_y, current_x))
-                if (self.is_valid_graph_point((current_y, current_x), current_adjacents)
-                        and (current_y,current_x) not in visited ):# not visited[current_y][current_x]):
+                if (self.is_valid_graph_point((current_y, current_x), current_adjacents)):
                     # For BFS traversal
-                    visited.add((current_y,current_x))
-                    bfs_queue.append((current_y, current_x))
+                    
+                    # Do not add to collections if we've already visited it
+                    if (current_y,current_x) not in visited:
+                        visited.add((current_y,current_x))
+                        bfs_queue.append((current_y, current_x))
 
+                    # Add this edge (most imediate neighbor in the direction) and break to next direction
                     self.graph_points.add_connection(
                         (start_y, start_x),
                         (current_y,current_x),
                         distance)
+
                     break
 
                 # Moves through a corridor in the same direction

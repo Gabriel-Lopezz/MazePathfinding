@@ -128,7 +128,7 @@ def visualize_instantly(maze: Maze, explored_inds: list[tuple[int, int]], path_i
 
     pygame.display.flip()
     
-
+# commit test
 
 def main():
     pygame.init()

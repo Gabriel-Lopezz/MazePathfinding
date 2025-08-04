@@ -7,13 +7,17 @@ BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 55
 NUM_FONT = 20
 
+# Maze Padding
+MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 200  # center and shift 50px left
+MAZE_PADDING_TOP = (RES_HEIGHT - MAZE_SIZE) // 2       # vertically centered
+
 # results formatting
 RESULTS_PADDING_TOP = 600
 RESULT_GAP = 2
 
-# Padding
-MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 200  # center and shift 50px left
-MAZE_PADDING_TOP = (RES_HEIGHT - MAZE_SIZE) // 2       # vertically centered
+# error messages formatting
+
+ERROR_PADDING_TOP = 825
 
 # Drawing algorithm traversal speed relative to maze size
 SPEED_FACTOR = 0.15

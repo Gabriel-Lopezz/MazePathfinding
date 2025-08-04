@@ -1,5 +1,4 @@
 import pygame
-import os
 from pygame.font import Font
 from constants import *
 
@@ -31,7 +30,7 @@ class Text:
 
     def clear(self):
         '''
-        Draws a white rect over the text
+        Draws the bg_color rect over the text
         '''
         pygame.draw.rect(self.screen, self.bg_color, self.rect)
 
@@ -167,17 +166,23 @@ def create_buttons(screen):
 
 def create_error_message(screen: pygame.Surface, error_message:str = ""):
     ERROR_X = MAZE_PADDING_LEFT + MAZE_SIZE + 125
-    ERROR_Y = MAZE_PADDING_TOP + 750
+    ERROR_Y = ERROR_PADDING_TOP
+
+    error_rect = pygame.Rect(
+        ERROR_X,
+        ERROR_Y,
+        BUTTON_WIDTH,
+        BUTTON_HEIGHT
+    )
 
     error_txt = Text(
         screen = screen,
         text_color = RED,
         font_path="fot-yuruka-std.ttf",
         font_size = NUM_FONT - 5, # Smaller than usual for space
-        rect = pygame.Rect( ERROR_X,
-                           ERROR_Y,
-                           BUTTON_WIDTH,
-                           BUTTON_HEIGHT),
+        rect = error_rect,
+        bg_color=pygame.Color(WHITE),
+        
         text = error_message
     )
 

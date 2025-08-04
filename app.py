@@ -179,6 +179,7 @@ def main():
     '''
     thread_load_maze: Thread  = None # Thread used for loading maze in background
     load_maze_result: list[tuple[bool, Maze|str]] = [] # Will hold maze object when thread is done
+    error_message = None # initializes error_message
 
     while running:
         # If we are loading the maze, and have gotten a result, handle the result
@@ -189,9 +190,12 @@ def main():
                 maze = maze_output
                 app_state, target_frame_rate = render_maze(maze=maze)
             else:
+                if error_message:
+                    error_message.clear()  # Clear the previous message
+
                 err_msg = "ERROR: " + maze_output
-                error_txt = gui.create_error_message(screen=screen, error_message=err_msg)
-                error_txt.draw()
+                error_message = gui.create_error_message(screen=screen, error_message=err_msg)
+                error_message.draw()
             
             # Clean up thread variables
             thread_load_maze = None

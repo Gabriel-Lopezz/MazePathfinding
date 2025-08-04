@@ -113,7 +113,7 @@ def create_buttons(screen):
         ("Show path taken", LIGHT_SKY_BLUE, 10),
         ("Finish Immediately", LIGHT_SKY_BLUE, 10),
         ("Unload Maze", RED, 30),
-        ("A*", RED, 10),
+        ("GBFS", RED, 10),
         ("Dijkstra's", RED, 0),
     ]
 

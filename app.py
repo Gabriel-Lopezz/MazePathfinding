@@ -8,7 +8,7 @@ from maze import Maze
 from constants import *
 from block import Block, BlockState
 from enum import Enum
-import algorithms
+import Algorithms
 from typing import Generator, Callable
 
 class AppState(Enum):
@@ -18,7 +18,7 @@ class AppState(Enum):
     FINISHED = 3
 class Algorithm_Choice(Enum):
     NONE = 0
-    A_STAR = 1
+    GBFS = 1
     DIJKSTRAS = 2
 class Traversal_Method(Enum):
     NONE = 0
@@ -55,7 +55,7 @@ def render_maze(maze: Maze):
     return app_state, max_frame_rate
 
 def execute_and_display_stats(maze: Maze, algorithm: Callable, exec_time_value: gui.Text, blocks_traversed_value: gui.Text, optimal_path_length_value: gui.Text):
-    explored_inds, optimal_path_inds, solve_time = algorithm(maze_grid=maze.maze_array, start=maze.start_coord, end=maze.end_coord)
+    explored_inds, optimal_path_inds, solve_time = algorithm(maze = maze)
 
     exec_time_value.text = "<0.0001s" if round(solve_time, 4) == 0.0 else str(round(solve_time, 4))
     blocks_traversed_value.text = str(len(explored_inds))
@@ -63,9 +63,6 @@ def execute_and_display_stats(maze: Maze, algorithm: Callable, exec_time_value: 
     return explored_inds,optimal_path_inds
 
 def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]], speed: str):
-    l = len(explored_inds)
-    maze.clear_path(explored_inds[1:l]) # Clear previous paths drawn
-
     maze_grid = maze.maze_array
 
     # Calculate blocks per frame for animation speed-up relative to grid size
@@ -94,7 +91,7 @@ def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], pa
                 blocks_per_frame = int(len(explored_inds) * 0.2)
 
     # Logic for drawing mazes, yields if we are still drawing (draws between start and end)
-    for i in range(0, len(explored_inds) - 1, blocks_per_frame):
+    for i in range(1, len(explored_inds) - 1, blocks_per_frame):
         for j in range(blocks_per_frame):
             ind = i + j
             if ind >= len(explored_inds) - 1:
@@ -123,9 +120,6 @@ def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], pa
     yield False
 
 def visualize_instantly(maze: Maze, explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
-    l = len(explored_inds)
-    maze.clear_path(explored_inds[1:l])
-
     for i in range(0, len(path_inds)):
         row, col = path_inds[i]
         block = maze.maze_array[row][col]
@@ -152,17 +146,17 @@ def main():
     # will change based on the algorithm/traversal user chooses
     algorithm = Algorithm_Choice.NONE
     traversal = Traversal_Method.NONE
-    algorithm = Algorithm_Choice.A_STAR
+    algorithm = Algorithm_Choice.GBFS
 
     '''
     Setup GUI elements. Rendering new objects will be event-based, not per-frame
     '''
     screen.fill(WHITE)
 
-    upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_button = gui.create_buttons(screen)
+    upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, gbfs, dijkstras_button = gui.create_buttons(screen)
     exec_time_value, blocks_traversed_value, optimal_path_length_value = gui.create_results(screen=screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
-    all_buttons = [upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, a_star_button, dijkstras_button]
+    all_buttons = [upload_button, preload_button, print_path_button, print_finished_path_button, unload_button, gbfs, dijkstras_button]
     all_stats_values: list[gui.Text] = [exec_time_value, blocks_traversed_value, optimal_path_length_value]
 
     pygame.display.flip()
@@ -250,41 +244,50 @@ def main():
                 elif print_path_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.NONE and app_state != AppState.MAZE_NOT_LOADED:
                     print_path_button.clicked()
 
-                    if algorithm == Algorithm_Choice.A_STAR:
+                    if algorithm == Algorithm_Choice.GBFS:
                         is_maze_drawing = False # Interrupt any current drawing
-                        maze.clear_path(explored_inds) # Remove any paths marked
+                        maze.clear_path(explored_inds[1:]) # Remove any paths marked
 
-                        explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=algorithms.geedy_best_first_search, exec_time_value=exec_time_value, 
+                        explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=Algorithms.geedy_best_first_search, exec_time_value=exec_time_value, 
                                                                                      blocks_traversed_value=blocks_traversed_value, optimal_path_length_value=optimal_path_length_value)
 
                         maze_animator = visualize_progressively(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds, speed="slow")
                         is_maze_drawing = True
 
                     elif algorithm == Algorithm_Choice.DIJKSTRAS:
-                        print("Testing")
-                        maze.create_graph()
-                        maze.graph_points.print_list()
+                        is_maze_drawing = False
+                        maze.clear_path(explored_inds[1:])
+
+                        explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=Algorithms.Dijkstra, exec_time_value=exec_time_value,
+                                                                                     blocks_traversed_value=blocks_traversed_value, optimal_path_length_value=optimal_path_length_value)
+                        
+                        maze_animator = visualize_progressively(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds, speed="slow")
+                        is_maze_drawing = True
 
                 elif print_finished_path_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.NONE and app_state != AppState.MAZE_NOT_LOADED:
                     print_finished_path_button.clicked()
 
-                    if algorithm == Algorithm_Choice.A_STAR:
-                        is_maze_drawing = False # Interrupt any current drawing
-                        maze.clear_path(explored_inds) # Remove any paths marked
+                    if algorithm == Algorithm_Choice.GBFS:
+                        is_maze_drawing = False
+                        maze.clear_path(explored_inds)
 
-                        explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=algorithms.geedy_best_first_search, exec_time_value=exec_time_value, 
+                        explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=Algorithms.geedy_best_first_search, exec_time_value=exec_time_value, 
                                                                                      blocks_traversed_value=blocks_traversed_value, optimal_path_length_value=optimal_path_length_value)
 
                         visualize_instantly(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
 
                     elif algorithm == Algorithm_Choice.DIJKSTRAS:
-                        print("Testing")
-                        maze.create_graph()
-                        maze.graph_points.print_list()
+                        is_maze_drawing = False
+                        maze.clear_path(explored_inds)
 
-                elif a_star_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.A_STAR:
-                    a_star_button.clicked()
-                    algorithm = Algorithm_Choice.A_STAR
+                        explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=Algorithms.Dijkstra, exec_time_value=exec_time_value,
+                                                                                     blocks_traversed_value=blocks_traversed_value, optimal_path_length_value=optimal_path_length_value)
+                        
+                        visualize_instantly(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
+
+                elif gbfs.is_clicked((x,y)) and algorithm != Algorithm_Choice.GBFS:
+                    gbfs.clicked()
+                    algorithm = Algorithm_Choice.GBFS
                 
                 elif dijkstras_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.DIJKSTRAS:
                     dijkstras_button.clicked()
@@ -299,8 +302,8 @@ def main():
         upload_button.set_enabled(app_state == AppState.MAZE_NOT_LOADED)
         preload_button.set_enabled(app_state == AppState.MAZE_NOT_LOADED)
         unload_button.set_enabled(app_state in (AppState.MAZE_LOADED, AppState.FINISHED))
-        dijkstras_button.set_enabled(algorithm == Algorithm_Choice.A_STAR)
-        a_star_button.set_enabled(algorithm == Algorithm_Choice.DIJKSTRAS)
+        dijkstras_button.set_enabled(algorithm == Algorithm_Choice.GBFS)
+        gbfs.set_enabled(algorithm == Algorithm_Choice.DIJKSTRAS)
         # we can add more buttons and enable/disabled them whenever
 
         # maze_drawer is the generator called from visualize_progressively

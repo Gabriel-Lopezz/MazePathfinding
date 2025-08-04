@@ -80,8 +80,11 @@ def grid_neighbors(grid: list[list], source: tuple[int, int]):
 
     return nbors
 
-def geedy_best_first_search(maze_grid: list[list], start: tuple[int, int], end: tuple[int, int]):
+def geedy_best_first_search(maze: Maze):
     start_time = time()
+    
+    maze_grid = maze.maze_array
+    start, end = maze.start_coord, maze.end_coord
 
     # Dictionary initializer of format: `(coord.x, coord.y): -1`
     h_scores = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
@@ -90,7 +93,7 @@ def geedy_best_first_search(maze_grid: list[list], start: tuple[int, int], end: 
     start_h = heuristic(start=start, goal=end)
     h_scores[start] = start_h
 
-    # min heap for available routes, first element based ordering 
+    # min heap for available routes, (heuristic, grid indices)
     frontier = [(start_h, start)]
 
     predecessors = {}
@@ -98,7 +101,7 @@ def geedy_best_first_search(maze_grid: list[list], start: tuple[int, int], end: 
 
     endFound = False
 
-    while len(frontier) > 0 and not endFound:
+    while frontier:
         curH, curNode = heapq.heappop(frontier)
 
         # Add to the list of explored blocks
@@ -149,6 +152,9 @@ def Dijkstra(maze: Maze):
         explored: list of (row, col) coordinates visited in order
         final_path: list of (row, col) coordinates in the shortest path
     """
+
+    start_time = time()
+
     # Build the adjacency list from the maze layout
     maze.create_graph()
     graph = maze.graph_points.graph
@@ -198,6 +204,8 @@ def Dijkstra(maze: Maze):
                 dist[neighbor] = new_dist
                 prev[neighbor] = u
                 heapq.heappush(pq, (new_dist, neighbor))
+    
+    solve_time = time() - start_time
 
     # --- Path reconstruction ---
     final_path = []
@@ -208,4 +216,4 @@ def Dijkstra(maze: Maze):
     final_path.append(start_coord)  # include the start
     final_path.reverse()
 
-    return explored, final_path
+    return explored, final_path, solve_time

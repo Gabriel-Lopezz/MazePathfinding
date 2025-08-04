@@ -54,12 +54,19 @@ def render_maze(maze: Maze):
 
     return app_state, max_frame_rate
 
-def execute_and_display_stats(maze: Maze, algorithm: Callable, exec_time_value: gui.Text, blocks_traversed_value: gui.Text, optimal_path_length_value: gui.Text):
-    explored_inds, optimal_path_inds, solve_time = algorithm(maze = maze)
+def execute_and_display_stats(maze: Maze, algorithm_used: Callable, algorithm_value: gui.Text, exec_time_value: gui.Text, blocks_traversed_value: gui.Text, 
+                              optimal_path_length_value: gui.Text):
+    explored_inds, optimal_path_inds, solve_time = algorithm_used(maze=maze)
 
-    exec_time_value.text = "<0.0001s" if round(solve_time, 4) == 0.0 else str(round(solve_time, 4))
+
+
+    algorithm_value.text = "Greedy BFS" if algorithm_used == Algorithms.geedy_best_first_search else "Dijkstra's"
+    if round(solve_time, 4) == 0.0:
+        exec_time_value.text = "<0.0001s"
+    else:
+        exec_time_value.text = f"{solve_time:.4f}s" # Formatting ensure 4 decimals
     blocks_traversed_value.text = str(len(explored_inds))
-    optimal_path_length_value.text = str(len(optimal_path_inds))
+    optimal_path_length_value.text = str(len(optimal_path_inds) - 1) # -1 to exclude starting block
     return explored_inds,optimal_path_inds
 
 def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
@@ -135,10 +142,10 @@ def main():
     screen.fill(WHITE)
 
     upload_button, preload_button, draw_progressively_button, draw_solution_instantly_button, unload_button, gbfs, dijkstras_button = gui.create_buttons(screen)
-    exec_time_value, blocks_traversed_value, optimal_path_length_value = gui.create_results(screen=screen)
+    algorithm_txt_value, exec_time_value, blocks_traversed_value, optimal_path_length_value = gui.create_results(screen=screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
     all_buttons = [upload_button, preload_button, draw_progressively_button, draw_solution_instantly_button, unload_button, gbfs, dijkstras_button]
-    all_stats_values: list[gui.Text] = [exec_time_value, blocks_traversed_value, optimal_path_length_value]
+    all_stats_values = [algorithm_txt_value, exec_time_value, blocks_traversed_value, optimal_path_length_value]
 
     error_message: gui.Text = None
 
@@ -254,7 +261,7 @@ def main():
                     is_maze_drawing = False # Interrupt any current drawing
                     maze.clear_path(explored_inds[1:]) # Remove any paths marked except start block
 
-                    explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm=algorithm_selected, exec_time_value=exec_time_value, 
+                    explored_inds, optimal_path_inds = execute_and_display_stats(maze=maze, algorithm_used=algorithm_selected, algorithm_value=algorithm_txt_value,exec_time_value=exec_time_value, 
                                                                                     blocks_traversed_value=blocks_traversed_value, optimal_path_length_value=optimal_path_length_value)
 
                     if draw_progressively_clicked:

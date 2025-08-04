@@ -53,7 +53,7 @@ class Button:
         self.text_rect = self.text_surface.get_rect(center=(self.rect.centerx, self.rect.centery)) # Center the text
 
         self.enabled = True
-        self.disabled_bg_color = pygame.Color('gray60')
+        self.disabled_bg_color = bg_color - pygame.Color(80, 80, 80)
 
     def draw(self):
         if self.enabled:
@@ -172,7 +172,7 @@ def create_error_message(screen: pygame.Surface, error_message:str = ""):
         screen = screen,
         text_color = RED,
         font_path="fot-yuruka-std.ttf",
-        font_size = NUM_FONT - 8, # Smaller than usual for space
+        font_size = NUM_FONT - 5, # Smaller than usual for space
         rect = pygame.Rect( ERROR_X,
                            ERROR_Y,
                            BUTTON_WIDTH,
@@ -183,22 +183,21 @@ def create_error_message(screen: pygame.Surface, error_message:str = ""):
     return error_txt
 
 def create_results(screen: pygame.Surface):
-    labels = ["Execution Time", "Blocks Traversed", "Final Path Length"]
+    labels = ["Algorithm", "Execution Time", "Blocks Traversed", "Final Path Length"]
 
     results = []
 
-    for i in range(len(labels)):
-
+    for i, label in enumerate(labels):
         label_txt = Text(
             screen = screen,
             text_color = RED,
             font_path="fot-yuruka-std.ttf",
-            font_size = NUM_FONT - 5, # Smaller than usual for space
+            font_size = NUM_FONT - 3, # Smaller than usual for space
             rect = pygame.Rect(MAZE_PADDING_LEFT + MAZE_SIZE + 40,
                             RESULTS_TOP + (BUTTON_HEIGHT * i),
                             BUTTON_WIDTH,
                             BUTTON_HEIGHT),
-            text = labels[i] + ": ",
+            text = label + ": ",
             center_text = False
         )
 

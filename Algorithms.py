@@ -134,7 +134,7 @@ def geedy_best_first_search(maze: Maze):
     solve_time = time() - start_time
 
     if not endFound:
-        return explored, []
+        return explored, [], solve_time
     
     final_path = [end]
 

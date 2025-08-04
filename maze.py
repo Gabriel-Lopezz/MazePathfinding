@@ -255,9 +255,13 @@ class Maze:
             self.walk_corridors((uy,ux),q,visited)
 
         print("Graph created successfully")
+
     # == Visuals == #
     def click_box(self, x, y, event_type):
-        '''event_type: 1 = left click, 3 = right click'''
+        '''
+        event_type: 1 = left click,
+                    3 = right click
+        '''
 
         # if you load a maze, then unload it, then you click on the empty area where the maze was, 
         # the program crashes without this next if statement - Andres
@@ -287,7 +291,7 @@ class Maze:
             return
         
         if event_type == 1:  # left click
-            if self.start_coord != (-1, 1):
+            if self.start_coord != (-1, -1):
                 old_y, old_x = self.start_coord
                 self.maze_array[old_y][old_x].state = BlockState.OPEN
                 self.maze_array[old_y][old_x].draw()
@@ -297,7 +301,7 @@ class Maze:
             self.start_coord = (maze_y, maze_x)
 
         elif event_type == 3:  # right click
-            if self.end_coord != (-1, 1):
+            if self.end_coord != (-1, -1):
                 old_y, old_x = self.end_coord
                 self.maze_array[old_y][old_x].state = BlockState.OPEN
                 self.maze_array[old_y][old_x].draw()

@@ -175,7 +175,6 @@ def main():
         # If we are loading the maze, and have gotten a result, handle the result
         if thread_load_maze and len(load_maze_result) > 0:
             load_status, maze_output = load_maze_result[0]
-            print("Finished loading, STATUS:", load_status)
 
             if load_status: # If successful
                 maze = maze_output
@@ -189,6 +188,7 @@ def main():
             thread_load_maze = None
             load_maze_result.clear()
 
+        # Event Loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False

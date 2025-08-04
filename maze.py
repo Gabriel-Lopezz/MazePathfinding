@@ -1,7 +1,6 @@
 import csv
 import pygame
 import _io
-from typing import Iterable
 from AdjacencyList import AdjacencyList
 from constants import *
 from collections import deque

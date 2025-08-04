@@ -15,9 +15,9 @@ RESULT_GAP = 2
 MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 200  # center and shift 50px left
 MAZE_PADDING_TOP = (RES_HEIGHT - MAZE_SIZE) // 2       # vertically centered
 
-# Drawing algorithm traversal speed relative to maze size
-SPEED_FACTOR = 0.15
-DRAW_RATE_FOR_LARGE_MAZES = 25 # How many blocks drawn each frame (for large mazes)
+# Target frame rate (tick rate) relative to maze size
+# frame rate ~ draw rate
+SPEED_FACTOR = 0.10
 
 #==COLORS==# if you change a color, comment what color it is
 BLACK = (0, 0, 0)

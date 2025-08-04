@@ -80,11 +80,14 @@ def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], pa
     blocks_per_frame = max(int(len(explored_inds) * percent_blocks_drawn), 1)
 
     # Logic for drawing mazes, yields if we are still drawing (draws between start and end)
-    for i in range(1, len(explored_inds) - 1, blocks_per_frame):
+    for i in range(1, len(explored_inds), blocks_per_frame):
         for j in range(blocks_per_frame):
             ind = i + j
-            if ind >= len(explored_inds) - 1:
+            if ind >= len(explored_inds):
                 break
+            
+            if explored_inds[ind] == maze.end_coord:
+                continue
 
             row, col = explored_inds[ind]
             block = maze_grid[row][col]
@@ -93,11 +96,14 @@ def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], pa
         
         yield True
     
-    for i in range(1, len(path_inds) - 1, blocks_per_frame):
+    for i in range(1, len(path_inds), blocks_per_frame):
         for j in range(blocks_per_frame):
             ind = i + j
-            if ind >= len(path_inds) - 1:
+            if ind >= len(path_inds):
                 break
+
+            if path_inds[ind] == maze.end_coord:
+                continue
 
             row, col = path_inds[ind]
             block = maze_grid[row][col]
@@ -108,8 +114,11 @@ def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], pa
 
     yield False
 
-def visualize_instantly(maze: Maze, explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
-    for i in range(1, len(path_inds) - 1):
+def visualize_instantly(maze: Maze, path_inds: list[tuple[int, int]]):
+    for i in range(1, len(path_inds)):
+        if path_inds[i] == maze.end_coord:
+            continue
+
         row, col = path_inds[i]
         block = maze.maze_array[row][col]
         block.set_state(BlockState.FINAL)

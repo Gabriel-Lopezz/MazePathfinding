@@ -1,13 +1,10 @@
 import csv
 import pygame
 import _io
-from typing import Iterable
 from AdjacencyList import AdjacencyList
 from constants import *
 from collections import deque
 from block import Block, BlockState
-import time
-import threading
 
 class Maze:
     def __init__(self, maze_file: _io.TextIOWrapper, screen: pygame.Surface):

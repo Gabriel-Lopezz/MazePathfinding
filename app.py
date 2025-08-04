@@ -1,6 +1,5 @@
 import pygame
-import tkinter
-from tkinter import filedialog
+from tkinter import filedialog, Tk
 import sys
 from threading import Thread
 import gui
@@ -28,7 +27,7 @@ class Traversal_Method(Enum):
     Prompts the user's file system dialog box and returns the file data
 '''
 def prompt_file():
-    tk_widget = tkinter.Tk()
+    tk_widget = Tk()
     tk_widget.withdraw() # Makes the Tkinter window invisible
 
     # Open's the OS dialog box for file selection

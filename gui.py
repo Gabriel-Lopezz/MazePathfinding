@@ -5,11 +5,12 @@ from constants import *
 
 class Text:
     def __init__(self, screen: pygame.Surface, text_color: pygame.Color, font_size: int, 
-                 rect: pygame.Rect, text: str = "", font_path=None, center_text = True):
+                 rect: pygame.Rect, text: str = "", bg_color=WHITE, font_path=None, center_text = True):
         self.screen = screen
         self.text_color = text_color
         self.rect = rect
         self.text = text
+        self.bg_color = bg_color
 
         if font_path:
             self.font = pygame.font.Font(font_path, font_size)
@@ -32,7 +33,7 @@ class Text:
         '''
         Draws a white rect over the text
         '''
-        pygame.draw.rect(self.screen, WHITE, self.rect)
+        pygame.draw.rect(self.screen, self.bg_color, self.rect)
 
 class Button:
 
@@ -183,39 +184,67 @@ def create_error_message(screen: pygame.Surface, error_message:str = ""):
     return error_txt
 
 def create_results(screen: pygame.Surface):
-    labels = ["Algorithm", "Execution Time", "Blocks Traversed", "Final Path Length"]
-
+    labels = ["Algorithm", "Execution Time", "Blocks Traversed", "Final Path Distance"]
     results = []
 
+    # Panel origin
+    panel_x = MAZE_PADDING_LEFT + MAZE_SIZE
+    panel_y = RESULTS_PADDING_TOP
+
+    # Container styling
+    container_margin_x = 20
+    container_margin_y = 10
+    container_width = BUTTON_WIDTH + 200
+    container_height = (BUTTON_HEIGHT + RESULT_GAP) * len(labels) + 10 # remove last gap
+
+    container_rect = pygame.Rect(
+        panel_x + container_margin_x,
+        panel_y - container_margin_y,
+        container_width,
+        container_height
+    )
+
+    pygame.draw.rect(screen, pygame.Color("gray20"), container_rect)
+
     for i, label in enumerate(labels):
-        label_txt = Text(
-            screen = screen,
-            text_color = RED,
-            font_path="fot-yuruka-std.ttf",
-            font_size = NUM_FONT - 3, # Smaller than usual for space
-            rect = pygame.Rect(MAZE_PADDING_LEFT + MAZE_SIZE + 40,
-                            RESULTS_TOP + (BUTTON_HEIGHT * i),
-                            BUTTON_WIDTH,
-                            BUTTON_HEIGHT),
-            text = label + ": ",
-            center_text = False
+        y_offset = panel_y + i * (BUTTON_HEIGHT + RESULT_GAP)
+
+        label_rect = pygame.Rect(
+            panel_x + 40,
+            y_offset,
+            BUTTON_WIDTH,
+            BUTTON_HEIGHT
         )
 
-        label_txt.draw()
-
-        result_txt = Text(
-            screen = screen,
-            text_color = RED,
-            font_path="fot-yuruka-std.ttf",
-            font_size = NUM_FONT - 5, # Smaller than usual for space
-            rect = pygame.Rect(MAZE_PADDING_LEFT + MAZE_SIZE + BUTTON_WIDTH + 45,
-                            RESULTS_TOP + (BUTTON_HEIGHT * i),
-                            BUTTON_WIDTH,
-                            BUTTON_HEIGHT),
-            text = "",
-            center_text = False
+        result_rect = pygame.Rect(
+            panel_x + BUTTON_WIDTH + 60,
+            y_offset,
+            BUTTON_WIDTH - 40,
+            BUTTON_HEIGHT
         )
 
-        results.append(result_txt)
+        label_text = Text(
+            screen=screen,
+            text_color=RED,
+            font_path="fot-yuruka-std.ttf",
+            font_size=NUM_FONT - 3,
+            rect=label_rect,
+            text=f"{label}:",
+            center_text=False
+        )
+        label_text.draw()
+
+        result_text = Text(
+            screen=screen,
+            text_color=RED,
+            font_path="fot-yuruka-std.ttf",
+            font_size=NUM_FONT - 5,
+            rect=result_rect,
+            text="",
+            bg_color=pygame.Color("gray20"),
+            center_text=False,
+        )
+
+        results.append(result_text)
 
     return results

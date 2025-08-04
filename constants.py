@@ -7,7 +7,9 @@ BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 55
 NUM_FONT = 20
 
-RESULTS_TOP = 600
+# results formatting
+RESULTS_PADDING_TOP = 600
+RESULT_GAP = 2
 
 # Padding
 MAZE_PADDING_LEFT = (RES_WIDTH - MAZE_SIZE) // 2 - 200  # center and shift 50px left

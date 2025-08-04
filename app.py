@@ -244,6 +244,7 @@ def main():
                     print_path_button.clicked()
 
                     if algorithm == Algorithm_Choice.GBFS:
+                        app_state = AppState.FINISHED
                         is_maze_drawing = False # Interrupt any current drawing
                         maze.clear_path(explored_inds[1:]) # Remove any paths marked
 
@@ -254,6 +255,7 @@ def main():
                         is_maze_drawing = True
 
                     elif algorithm == Algorithm_Choice.DIJKSTRAS:
+                        app_state = AppState.FINISHED
                         is_maze_drawing = False
                         maze.clear_path(explored_inds[1:])
 
@@ -267,6 +269,7 @@ def main():
                     print_finished_path_button.clicked()
 
                     if algorithm == Algorithm_Choice.GBFS:
+                        app_state = AppState.FINISHED
                         is_maze_drawing = False
                         maze.clear_path(explored_inds)
 
@@ -276,6 +279,7 @@ def main():
                         visualize_instantly(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
 
                     elif algorithm == Algorithm_Choice.DIJKSTRAS:
+                        app_state = AppState.FINISHED
                         is_maze_drawing = False
                         maze.clear_path(explored_inds)
 

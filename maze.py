@@ -142,7 +142,7 @@ class Maze:
     
     # returns in (x,y) format
     def get_adjacent(self, start_point: tuple):
-        x,y = start_point
+        y,x = start_point
         # 0s are there so only either the x or y coordinate is changed in one loop
         dx = [1, -1, 0, 0]  # right, left
         dy = [0, 0, 1, -1]  # down, up
@@ -155,7 +155,7 @@ class Maze:
                 or nx >= self.cols or ny >= self.rows
                 or self.maze_array[ny][nx].state == BlockState.WALL):
                 continue
-            adjacents.append((nx, ny))
+            adjacents.append((ny, nx))
         return adjacents
 
     def is_valid_graph_point(self, center: tuple, adjacents : list[tuple[int,int]]):
@@ -164,7 +164,7 @@ class Maze:
             # A coordinate has an intersection if it has more than 3 neighbors
             A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
         '''
-        x, y = center
+        y,x = center
         if self.maze_array[y][x] == BlockState.START or self.maze_array[y][x] == BlockState.END: # coordinate is a start/end point
             return True
         if len(adjacents) >= 3 or len(adjacents) == 1: # coordinate (x,y) is an intersection or a deadend
@@ -190,7 +190,7 @@ class Maze:
             Will only walk through the corridors in all 4 directions of valid graph_points
             when it gets to a valid graph point, it will add it to the graph
         '''
-        start_x, start_y = start_point
+        start_y, start_x = start_point
         # 0s are there so only either the x or y coordinate is changed in one loop
         dx = [1, -1, 0, 0]  # right, left
         dy = [0, 0, 1, -1]  # down, up
@@ -207,16 +207,16 @@ class Maze:
 
             while True:
                 # to check if it is a valid graph point
-                current_adjacents = self.get_adjacent((current_x, current_y))
-                if (self.is_valid_graph_point((current_x, current_y), current_adjacents)
-                        and (current_x,current_y) not in visited ):# not visited[current_y][current_x]):
+                current_adjacents = self.get_adjacent((current_y, current_x))
+                if (self.is_valid_graph_point((current_y, current_x), current_adjacents)
+                        and (current_y,current_x) not in visited ):# not visited[current_y][current_x]):
                     # For BFS traversal
-                    visited.add((current_x,current_y))
-                    bfs_queue.append((current_x, current_y))
+                    visited.add((current_y,current_x))
+                    bfs_queue.append((current_y, current_x))
 
                     self.graph_points.add_connection(
-                        (start_x, start_y),
-                        (current_x,current_y),
+                        (start_y, start_x),
+                        (current_y,current_x),
                         distance)
                     break
 
@@ -239,15 +239,15 @@ class Maze:
             Done by walking through every corridor of the maze in a singular direction until it hits an intersection
             Will use a BFS approach
         '''
-        start_x, start_y = self.start_coord
+        start_y, start_x = self.start_coord
         # Keeps track of Visited & ensures that each corridor is walked exaclty once
         # fixed spacing issue
         visited = set()
-        visited.add((start_x,start_y))
+        visited.add((start_y,start_x))
 
         # stored as (x, y)
         q = deque()
-        q.append((start_x,start_y))
+        q.append((start_y,start_x))
         while q:
             # ux, uy is the "center" point, or current
             ux, uy = q.popleft()

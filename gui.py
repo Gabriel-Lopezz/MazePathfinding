@@ -110,8 +110,8 @@ def create_buttons(screen):
     button_list = [
         ("Upload Maze", LIGHT_SKY_BLUE, 10),
         ("Use Pre-made", LIGHT_SKY_BLUE, 40),
-        ("Show path taken", LIGHT_SKY_BLUE, 10),
-        ("Finish Immediately", LIGHT_SKY_BLUE, 10),
+        ("Draw Traversal", LIGHT_SKY_BLUE, 10),
+        ("Show solution", LIGHT_SKY_BLUE, 10),
         ("Unload Maze", RED, 30),
         ("GBFS", RED, 10),
         ("Dijkstra's", RED, 0),
@@ -126,6 +126,21 @@ def create_buttons(screen):
 
     # Start Y so the whole group is centered
     panel_y = (RES_HEIGHT - total_height) // 2 - 200
+
+    # Buttons panel styling
+    container_padding_x = 20
+    container_padding_y = 20
+    container_width = button_width + container_padding_x * 2
+    container_height = total_height + container_padding_y * 2
+
+    container_rect = pygame.Rect(
+        panel_x - container_padding_x,
+        panel_y - container_padding_y,
+        container_width,
+        container_height
+    )
+
+    pygame.draw.rect(screen, pygame.Color("gray20"), container_rect)  # filled
 
     # Create all buttons
     buttons = []

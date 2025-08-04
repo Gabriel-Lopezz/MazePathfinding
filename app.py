@@ -8,7 +8,7 @@ from maze import Maze
 from constants import *
 from block import Block, BlockState
 from enum import Enum
-import algorithms
+import Algorithms
 from typing import Generator, Callable
 
 class AppState(Enum):

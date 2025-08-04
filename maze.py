@@ -239,7 +239,7 @@ class Maze:
             Done by walking through every corridor of the maze in a singular direction until it hits an intersection
             Will use a BFS approach
         '''
-        start_y, start_x = self.start_coord
+        start_y, start_x = self.start_coord # (y,x)
         # Keeps track of Visited & ensures that each corridor is walked exaclty once
         # fixed spacing issue
         visited = set()

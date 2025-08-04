@@ -254,7 +254,6 @@ class Maze:
             # BFS additional steps done in this method
             self.walk_corridors((uy,ux),q,visited)
 
-        print("Graph created successfully")
 
     # == Visuals == #
     def click_box(self, x, y, event_type):

@@ -108,10 +108,25 @@ def a_star(maze: Maze):
 
 # Dijkstra section
 
+import heapq
+from time import time
+from maze import Maze
+from block import BlockState
+
+def is_collinear(a: tuple[int, int], b: tuple[int, int], c: tuple[int, int]) -> bool:
+    """
+    Returns True if points a→b→c lie in a straight horizontal or vertical line.
+    """
+    (r0, c0), (r1, c1), (r2, c2) = a, b, c
+    dr1, dc1 = r1 - r0, c1 - c0
+    dr2, dc2 = r2 - r1, c2 - c1
+    # Collinear if both moves are purely horizontal or purely vertical in the same direction
+    return (dr1 == dr2 == 0) or (dc1 == dc2 == 0)
+
 def expand_path(maze: Maze, node_a: tuple[int, int], node_b: tuple[int, int]) -> list[tuple[int, int]]:
     """
-    Expands a straight corridor between two graph points into all intermediate coordinates
-    node_a, node_b are (row, col) tuples
+    Expands a straight corridor between two graph points into all intermediate coordinates.
+    node_a, node_b are (row, col) tuples.
     """
     expanded = [node_a]
     r1, c1 = node_a
@@ -134,15 +149,16 @@ def expand_path(maze: Maze, node_a: tuple[int, int], node_b: tuple[int, int]) ->
 def Dijkstra(maze: Maze):
     """
     Runs Dijkstra's shortest path algorithm on the maze's adjacency list,
-    but expands graph edges into full maze corridors for visualization.
+    expands graph edges into full maze corridors for visualization, and then
+    prunes collinear points so that final_path contains only start, turns, and end.
     Returns:
         explored: list of (row, col) coordinates visited in order
-        final_path: list of (row, col) coordinates in the shortest path
+        final_path: pruned list of (row, col) coordinates in the shortest path
         solve_time: time taken to solve
     """
-
     start_time = time()
 
+    # build the graph of intersections/turns/dead-ends
     maze.create_graph()
     graph = maze.graph_points.graph
     coord_to_id = maze.graph_points.coord_to_verNum
@@ -150,37 +166,33 @@ def Dijkstra(maze: Maze):
 
     start_coord = maze.start_coord
     end_coord = maze.end_coord
-
     start_id = coord_to_id.get(start_coord)
     end_id = coord_to_id.get(end_coord)
-
     if start_id is None or end_id is None:
         print("Start or end not found in graph.")
-        return [], [], 0
+        return [], [], 0.0
 
+    # initialize distances and predecessor map
     dist = {v: float("inf") for v in graph}
     dist[start_id] = 0
-    prev = {}
+    prev: dict[int, int] = {}
 
     pq = [(0, start_id)]
-    explored = []
+    explored: list[tuple[int, int]] = []
 
+    # Main Dijkstra loop
     while pq:
         cur_dist, u = heapq.heappop(pq)
-
         if cur_dist > dist[u]:
             continue
-
-        # Always expand path to current node
+        # Mark exploration (expand corridor from prev to u)
         if u in prev:
-            expanded_corridor = expand_path(maze, id_to_coord[prev[u]], id_to_coord[u])
-            explored.extend(expanded_corridor[1:])
+            seg = expand_path(maze, id_to_coord[prev[u]], id_to_coord[u])
+            explored.extend(seg[1:])
         else:
-            explored.append(id_to_coord[u])  # Start node
-
+            explored.append(id_to_coord[u])
         if u == end_id:
-            break  # Now we break after marking the final segment
-
+            break
         # Relax edges
         for neighbor, weight in graph[u]:
             new_dist = cur_dist + weight
@@ -191,8 +203,8 @@ def Dijkstra(maze: Maze):
 
     solve_time = time() - start_time
 
-    # Path reconstruction
-    path_nodes = []
+    # Reconstruct the graph-node path (start → … → end)
+    path_nodes: list[tuple[int, int]] = []
     cur = end_id
     while cur in prev:
         path_nodes.append(id_to_coord[cur])
@@ -200,13 +212,21 @@ def Dijkstra(maze: Maze):
     path_nodes.append(start_coord)
     path_nodes.reverse()
 
-    # Expand final path fully
-    final_path = []
+    # Expand to full corridor coordinates
+    full_path: list[tuple[int, int]] = []
     for i in range(len(path_nodes) - 1):
-        expanded_corridor = expand_path(maze, path_nodes[i], path_nodes[i + 1])
-        if final_path:
-            final_path.extend(expanded_corridor[1:])
+        segment = expand_path(maze, path_nodes[i], path_nodes[i + 1])
+        if not full_path:
+            full_path.extend(segment)
         else:
-            final_path.extend(expanded_corridor)
+            full_path.extend(segment[1:])
 
-    return explored, final_path, solve_time
+    # Prune collinear intermediates
+    pruned: list[tuple[int, int]] = []
+    for pt in full_path:
+        pruned.append(pt)
+        # if last three are collinear, remove the middle one
+        while len(pruned) >= 3 and is_collinear(pruned[-3], pruned[-2], pruned[-1]):
+            pruned.pop(-2)
+
+    return explored, pruned, solve_time

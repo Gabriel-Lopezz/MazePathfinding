@@ -120,7 +120,7 @@ def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], pa
     yield False
 
 def visualize_instantly(maze: Maze, explored_inds: list[tuple[int, int]], path_inds: list[tuple[int, int]]):
-    for i in range(0, len(path_inds)):
+    for i in range(1, len(path_inds) - 1):
         row, col = path_inds[i]
         block = maze.maze_array[row][col]
         block.set_state(BlockState.FINAL)

@@ -96,8 +96,13 @@ class Maze:
         reader = csv.reader(lines)
         self.cols = len(next(reader))
 
+        min_maze = 2
+        max_maze = MAZE_SIZE
+
         if self.rows < 2 or self.cols < 2 or self.rows != self.cols:
             raise Exception(f"Maze must be square, at least 2x2. This maze has rows:{self.rows} cols:{self.cols}")
+        elif self.rows > max_maze:
+            raise Exception(f"Maze cannot exceed maximum ")
         
         self.block_length = MAZE_SIZE // self.rows
         
@@ -181,6 +186,7 @@ class Maze:
             if dx1 + dx2 != 0 or dy1 +dy2 != 0:
                 return True
         return False
+    
     """
         After some thought, and based on what counts as graph points now, a "walk" the corridor approach seems better,
         where the algorithm will walk a path in a single direction until it reaches an valid graph point for all 4 directions

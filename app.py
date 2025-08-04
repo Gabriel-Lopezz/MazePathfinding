@@ -280,8 +280,10 @@ def main():
         upload_button.set_enabled(app_state == AppState.MAZE_NOT_LOADED)
         preload_button.set_enabled(app_state == AppState.MAZE_NOT_LOADED)
         unload_button.set_enabled(app_state in (AppState.MAZE_LOADED, AppState.FINISHED))
-        dijkstras_button.set_enabled(algorithm == Algorithm_Choice.GBFS)
-        gbfs.set_enabled(algorithm == Algorithm_Choice.DIJKSTRAS)
+        draw_progressively_button.set_enabled(app_state != AppState.MAZE_NOT_LOADED)
+        draw_solution_instantly_button.set_enabled(app_state != AppState.MAZE_NOT_LOADED)
+        dijkstras_button.set_enabled(algorithm == Algorithm_Choice.GBFS and app_state != AppState.MAZE_NOT_LOADED)
+        gbfs.set_enabled(algorithm == Algorithm_Choice.DIJKSTRAS and app_state != AppState.MAZE_NOT_LOADED)
         # we can add more buttons and enable/disabled them whenever
 
         # maze_drawer is the generator called from visualize_progressively

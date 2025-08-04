@@ -102,34 +102,34 @@ def geedy_best_first_search(maze: Maze):
     endFound = False
 
     while frontier:
-        curH, curNode = heapq.heappop(frontier)
+        cur_h, cur_node = heapq.heappop(frontier)
 
         # Add to the list of explored blocks
-        explored.append(curNode)
+        explored.append(cur_node)
 
         # If this path is worse than the current best, skip it
-        if h_scores[curNode] != -1 and curH > h_scores[curNode]:
+        if h_scores[cur_node] != -1 and cur_h > h_scores[cur_node]:
             continue
 
-        if curNode == end: # First path to end will always be shortest; safe to break
+        if cur_node == end: # First path to end will always be shortest; safe to break
             endFound = True
             break
 
         # Process neighbors
-        for nDist, nNode in grid_neighbors(grid=maze_grid, source=curNode):
-            nrow, ncol = nNode
+        for n_h, n_node in grid_neighbors(grid=maze_grid, source=cur_node):
+            nrow, ncol = n_node
             nblock = maze_grid[nrow][ncol]
 
             if (nblock.state == BlockState.WALL): #ignore walls
                 continue
 
             # calculate neighboring f score
-            h = heuristic(start=nNode, goal=end)
+            h = heuristic(start=n_node, goal=end)
             
-            if h_scores[nNode] == -1 or h < h_scores[nNode]:
-                h_scores[nNode] = h
-                heapq.heappush(frontier, (h, nNode))
-                predecessors[nNode] = curNode
+            if h_scores[n_node] == -1 or h < h_scores[n_node]:
+                h_scores[n_node] = h
+                heapq.heappush(frontier, (h, n_node))
+                predecessors[n_node] = cur_node
     
     solve_time = time() - start_time
 

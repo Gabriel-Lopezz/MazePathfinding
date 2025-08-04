@@ -54,8 +54,8 @@ def log_time_decorator(func):
 # GBFS Section
 def heuristic(start: tuple[int, int], goal: tuple[int, int]):
     '''
-    Calculate heuristic based on 4-Directional Manhattan Distance formula.
-    scale_factor is used to scale the heuristic for tie-breaking. 
+    Calculate heuristic based on 4-Directional Manhattan Distance formula
+    scale_factor is used to scale the heuristic for tie-breaking
         Should be no more (1 + 1/(expected maximum path length)) for our use case
     '''
 
@@ -145,10 +145,12 @@ def geedy_best_first_search(maze: Maze):
     
     return explored, list(reversed(final_path)), solve_time
 
+# Dijkstra section
+
 def expand_path(maze: Maze, node_a: tuple[int, int], node_b: tuple[int, int]) -> list[tuple[int, int]]:
     """
-    Expands a straight corridor between two graph points into all intermediate coordinates.
-    node_a, node_b are (row, col) tuples.
+    Expands a straight corridor between two graph points into all intermediate coordinates
+    node_a, node_b are (row, col) tuples
     """
     expanded = [node_a]
     r1, c1 = node_a
@@ -177,8 +179,6 @@ def Dijkstra(maze: Maze):
         final_path: list of (row, col) coordinates in the shortest path
         solve_time: time taken to solve
     """
-    import heapq
-    from time import time
 
     start_time = time()
 

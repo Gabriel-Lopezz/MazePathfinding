@@ -18,7 +18,7 @@ class AppState(Enum):
     FINISHED = 3
 class Algorithm_Choice(Enum):
     NONE = 0
-    GBFS = 1
+    A_STAR = 1
     DIJKSTRAS = 2
 class Traversal_Method(Enum):
     NONE = 0
@@ -60,7 +60,7 @@ def execute_and_display_stats(maze: Maze, algorithm_used: Callable, algorithm_va
 
 
 
-    algorithm_value.text = "Greedy BFS" if algorithm_used == Algorithms.geedy_best_first_search else "Dijkstra's"
+    algorithm_value.text = "Greedy BFS" if algorithm_used == Algorithms.a_star else "Dijkstra's"
     if round(solve_time, 4) == 0.0:
         exec_time_value.text = "<0.0001s"
     else:
@@ -143,17 +143,17 @@ def main():
     # will change based on the algorithm/traversal user chooses
     algorithm = Algorithm_Choice.NONE
     traversal = Traversal_Method.NONE
-    algorithm = Algorithm_Choice.GBFS
+    algorithm = Algorithm_Choice.A_STAR
 
     '''
     Setup GUI elements
     '''
     screen.fill(WHITE)
 
-    upload_button, preload_button, draw_progressively_button, draw_solution_instantly_button, unload_button, gbfs, dijkstras_button = gui.create_buttons(screen)
+    upload_button, preload_button, draw_progressively_button, draw_solution_instantly_button, unload_button, a_star_button, dijkstras_button = gui.create_buttons(screen)
     algorithm_txt_value, exec_time_value, blocks_traversed_value, optimal_path_length_value = gui.create_results(screen=screen)
     # Storing in arrays makes it cleaner to print all visuals for that state
-    all_buttons = [upload_button, preload_button, draw_progressively_button, draw_solution_instantly_button, unload_button, gbfs, dijkstras_button]
+    all_buttons = [upload_button, preload_button, draw_progressively_button, draw_solution_instantly_button, unload_button, a_star_button, dijkstras_button]
     all_stats_values = [algorithm_txt_value, exec_time_value, blocks_traversed_value, optimal_path_length_value]
 
     error_message: gui.Text = None
@@ -250,7 +250,7 @@ def main():
                     else:
                         draw_solution_instantly_button.clicked()
 
-                    algorithm_selected = Algorithms.geedy_best_first_search if algorithm == Algorithm_Choice.GBFS else Algorithms.Dijkstra
+                    algorithm_selected = Algorithms.a_star if algorithm == Algorithm_Choice.A_STAR else Algorithms.Dijkstra
 
                     # Clear any previous error message if there was one
                     if error_message:
@@ -279,9 +279,9 @@ def main():
                     else:
                         visualize_instantly(maze=maze, path_inds=optimal_path_inds)
 
-                elif gbfs.is_clicked((x,y)) and algorithm != Algorithm_Choice.GBFS:
-                    gbfs.clicked()
-                    algorithm = Algorithm_Choice.GBFS
+                elif a_star_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.A_STAR:
+                    a_star_button.clicked()
+                    algorithm = Algorithm_Choice.A_STAR
                 
                 elif dijkstras_button.is_clicked((x,y)) and algorithm != Algorithm_Choice.DIJKSTRAS:
                     dijkstras_button.clicked()
@@ -298,8 +298,8 @@ def main():
         unload_button.set_enabled(app_state in (AppState.MAZE_LOADED, AppState.FINISHED))
         draw_progressively_button.set_enabled(app_state != AppState.MAZE_NOT_LOADED)
         draw_solution_instantly_button.set_enabled(app_state != AppState.MAZE_NOT_LOADED)
-        dijkstras_button.set_enabled(algorithm == Algorithm_Choice.GBFS and app_state != AppState.MAZE_NOT_LOADED)
-        gbfs.set_enabled(algorithm == Algorithm_Choice.DIJKSTRAS and app_state != AppState.MAZE_NOT_LOADED)
+        dijkstras_button.set_enabled(algorithm == Algorithm_Choice.A_STAR and app_state != AppState.MAZE_NOT_LOADED)
+        a_star_button.set_enabled(algorithm == Algorithm_Choice.DIJKSTRAS and app_state != AppState.MAZE_NOT_LOADED)
         # we can add more buttons and enable/disabled them whenever
 
         # maze_drawer is the generator called from visualize_progressively

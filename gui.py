@@ -113,7 +113,7 @@ def create_buttons(screen):
         ("Draw Traversal", LIGHT_SKY_BLUE, 10),
         ("Show solution", LIGHT_SKY_BLUE, 10),
         ("Unload Maze", RED, 30),
-        ("GBFS", RED, 10),
+        ("A*", RED, 10),
         ("Dijkstra's", RED, 0),
     ]
 

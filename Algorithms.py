@@ -1,62 +1,58 @@
-from turtledemo.penrose import start
-from pygame.mixer_music import queue
-from collections import deque
 from maze import Maze
 from block import BlockState
 from time import time
 import heapq
 
-def log_time_decorator(func):
-    def wrapper(*args, **kwargs):
-        start_time = time()
-        func(*args, **kwargs)
-        exe_time = time() - start_time
-    
-        return exe_time
-    
-    return wrapper
-
-# GBFS Section
-def heuristic(start: tuple[int, int], goal: tuple[int, int]):
+# A* Section
+def heuristic(source: tuple[int, int], goal: tuple[int, int]):
     '''
     Calculate heuristic based on 4-Directional Manhattan Distance formula
     scale_factor is used to scale the heuristic for tie-breaking
         Should be no more (1 + 1/(expected maximum path length)) for our use case
     '''
 
-    dx = abs(goal[0] - start[0])
-    dy = abs(goal[1] - start[1])
+    dx = abs(goal[0] - source[0])
+    dy = abs(goal[1] - source[1])
 
     return (dx + dy)
 
 def grid_neighbors(grid: list[list], source: tuple[int, int]):
+    '''
+    Get the 4-directional neighbors of the given `source` node.
+    Returns (heuristic, (row, col))
+    '''
     row, col = source[0], source[1]
+
+    above = (row-1, col)
+    below = (row+1, col)
+    left = (row, col-1)
+    right = (row, col+1)
 
     nbors = []
 
     if row > 0:
-        nbors.append((1, (row-1, col)))
+        nbors.append(above)
     if row < len(grid) - 1:
-        nbors.append((1, (row+1, col)))
+        nbors.append(below)
     if col > 0:
-        nbors.append((1, (row, col-1)))
+        nbors.append(left)
     if col < len(grid[0]) - 1:
-        nbors.append((1, (row, col+1)))
+        nbors.append(right)
 
     return nbors
 
-def geedy_best_first_search(maze: Maze):
+def a_star(maze: Maze):
     start_time = time()
     
     maze_grid = maze.maze_array
     start, end = maze.start_coord, maze.end_coord
 
     # Dictionary initializer of format: `(coord.x, coord.y): -1`
-    h_scores = {(vertex.row, vertex.col): -1 for line in maze_grid for vertex in line}
+    g_scores = {(vertex.row, vertex.col): float('inf') for line in maze_grid for vertex in line}
+    g_scores[start] = 0
     
     # Start block parameters
-    start_h = heuristic(start=start, goal=end)
-    h_scores[start] = start_h
+    start_h = heuristic(source=start, goal=end)
 
     # min heap for available routes, (heuristic, grid indices)
     frontier = [(start_h, start)]
@@ -67,33 +63,35 @@ def geedy_best_first_search(maze: Maze):
     endFound = False
 
     while frontier:
-        cur_h, cur_node = heapq.heappop(frontier)
+        cur_f, cur_node = heapq.heappop(frontier)
 
         # Add to the list of explored blocks
         explored.append(cur_node)
 
-        # If this path is worse than the current best, skip it
-        if h_scores[cur_node] != -1 and cur_h > h_scores[cur_node]:
-            continue
-
-        if cur_node == end: # First path to end will always be shortest; safe to break
+        # First path to end will always be shortest; safe to break
+        if cur_node == end:
             endFound = True
             break
 
-        # Process neighbors
-        for n_h, n_node in grid_neighbors(grid=maze_grid, source=cur_node):
+        # If this path is worse than the current best, skip it
+        prev_f = g_scores[cur_node] + heuristic(source=cur_node, goal=end)
+        if cur_f > prev_f:
+            continue
+
+
+        # Relax neighbors
+        for n_node in grid_neighbors(grid=maze_grid, source=cur_node):
             nrow, ncol = n_node
             nblock = maze_grid[nrow][ncol]
 
-            if (nblock.state == BlockState.WALL): #ignore walls
+            if (nblock.state == BlockState.WALL): # Ignore walls
                 continue
 
-            # calculate neighboring f score
-            h = heuristic(start=n_node, goal=end)
-            
-            if h_scores[n_node] == -1 or h < h_scores[n_node]:
-                h_scores[n_node] = h
-                heapq.heappush(frontier, (h, n_node))
+            n_g = g_scores[cur_node] + 1
+            if n_g < g_scores[n_node]:
+                g_scores[n_node] = n_g
+                n_f = n_g + heuristic(source=n_node,goal=end)
+                heapq.heappush(frontier, (n_f, n_node))
                 predecessors[n_node] = cur_node
     
     solve_time = time() - start_time

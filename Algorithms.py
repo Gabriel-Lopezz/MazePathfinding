@@ -182,7 +182,6 @@ def Dijkstra(maze: Maze):
 
     start_time = time()
 
-    # Build the adjacency list from the maze layout
     maze.create_graph()
     graph = maze.graph_points.graph
     coord_to_id = maze.graph_points.coord_to_verNum
@@ -191,7 +190,6 @@ def Dijkstra(maze: Maze):
     start_coord = maze.start_coord
     end_coord = maze.end_coord
 
-    # Convert coordinates to vertex IDs
     start_id = coord_to_id.get(start_coord)
     end_id = coord_to_id.get(end_coord)
 
@@ -199,31 +197,28 @@ def Dijkstra(maze: Maze):
         print("Start or end not found in graph.")
         return [], [], 0
 
-    # Distance to each vertex (default = infinity)
     dist = {v: float("inf") for v in graph}
     dist[start_id] = 0
-
-    # Predecessors for path reconstruction
     prev = {}
 
-    # Priority queue: (distance_from_start, vertex_id)
     pq = [(0, start_id)]
     explored = []
 
     while pq:
         cur_dist, u = heapq.heappop(pq)
 
-        if u == end_id:
-            break
         if cur_dist > dist[u]:
             continue
 
-        # Mark explored: expand path from previous node if it exists
+        # Always expand path to current node
         if u in prev:
             expanded_corridor = expand_path(maze, id_to_coord[prev[u]], id_to_coord[u])
-            explored.extend(expanded_corridor[1:])  # skip first because already visited
+            explored.extend(expanded_corridor[1:])
         else:
-            explored.append(id_to_coord[u])  # start node
+            explored.append(id_to_coord[u])  # Start node
+
+        if u == end_id:
+            break  # Now we break after marking the final segment
 
         # Relax edges
         for neighbor, weight in graph[u]:
@@ -244,12 +239,12 @@ def Dijkstra(maze: Maze):
     path_nodes.append(start_coord)
     path_nodes.reverse()
 
-    # Expand final_path to include all corridor cells
+    # Expand final path fully
     final_path = []
     for i in range(len(path_nodes) - 1):
         expanded_corridor = expand_path(maze, path_nodes[i], path_nodes[i + 1])
         if final_path:
-            final_path.extend(expanded_corridor[1:])  # avoid duplicate point
+            final_path.extend(expanded_corridor[1:])
         else:
             final_path.extend(expanded_corridor)
 

@@ -173,8 +173,8 @@ class Maze:
             adjacent1 ,adjacent2 = adjacents[0],adjacents[1]
             if adjacent1 == adjacent2: # guard against duplicate adjacent points
                 return False
-            ux, uy = adjacent1
-            vx, vy = adjacent2
+            uy, ux = adjacent1
+            vy, vx = adjacent2
             dx1, dy1 = ux - x, uy - y # represents the change of direction from the first adjacent point
             dx2, dy2 = vx - x, vy - y # represents the change of direction from the second adjacent point
             # if at least one either of the changes of direction != 0, that means the line is not straight/ is a turn
@@ -245,14 +245,14 @@ class Maze:
         visited = set()
         visited.add((start_y,start_x))
 
-        # stored as (x, y)
+        # stored as (y, x)
         q = deque()
         q.append((start_y,start_x))
         while q:
             # ux, uy is the "center" point, or current
-            ux, uy = q.popleft()
+            uy, ux = q.popleft()
             # BFS additional steps done in this method
-            self.walk_corridors((ux,uy),q,visited)
+            self.walk_corridors((uy,ux),q,visited)
 
         print("Graph created successfully")
     # == Visuals == #

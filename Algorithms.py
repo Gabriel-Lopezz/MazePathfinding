@@ -142,4 +142,70 @@ def geedy_best_first_search(maze_grid: list[list], start: tuple[int, int], end: 
     
     return explored, list(reversed(final_path)), solve_time
 
+def Dijkstra(maze: Maze):
+    """
+    Runs Dijkstra's shortest path algorithm on the maze's adjacency list.
+    Returns:
+        explored: list of (row, col) coordinates visited in order
+        final_path: list of (row, col) coordinates in the shortest path
+    """
+    # Build the adjacency list from the maze layout
+    maze.create_graph()
+    graph = maze.graph_points.graph
+    coord_to_id = maze.graph_points.coord_to_verNum
+    id_to_coord = maze.graph_points.verNum_to_coord
 
+    start_coord = maze.start_coord
+    end_coord = maze.end_coord
+
+    # Convert coordinates to vertex IDs
+    start_id = coord_to_id.get(start_coord)
+    end_id = coord_to_id.get(end_coord)
+
+    if start_id is None or end_id is None:
+        print("Start or end not found in graph.")
+        return [], []
+
+    # Distance to each vertex (default = infinity)
+    dist = {v: float("inf") for v in graph}
+    dist[start_id] = 0
+
+    # Predecessors for path reconstruction
+    prev = {}
+
+    # Priority queue: (distance_from_start, vertex_id)
+    pq = [(0, start_id)]
+    explored = []
+
+    while pq:
+        cur_dist, u = heapq.heappop(pq)
+
+        # If we've reached the end, stop early
+        if u == end_id:
+            break
+
+        # Skip if we've already found a shorter path
+        if cur_dist > dist[u]:
+            continue
+
+        # Mark as explored
+        explored.append(id_to_coord[u])
+
+        # Relax edges
+        for neighbor, weight in graph[u]:
+            new_dist = cur_dist + weight
+            if new_dist < dist[neighbor]:
+                dist[neighbor] = new_dist
+                prev[neighbor] = u
+                heapq.heappush(pq, (new_dist, neighbor))
+
+    # --- Path reconstruction ---
+    final_path = []
+    cur = end_id
+    while cur in prev:
+        final_path.append(id_to_coord[cur])
+        cur = prev[cur]
+    final_path.append(start_coord)  # include the start
+    final_path.reverse()
+
+    return explored, final_path

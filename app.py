@@ -277,7 +277,7 @@ def main():
                         maze_animator = visualize_progressively(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
                         is_maze_drawing = True
                     else:
-                        visualize_instantly(maze=maze, explored_inds=explored_inds, path_inds=optimal_path_inds)
+                        visualize_instantly(maze=maze, path_inds=optimal_path_inds)
 
                 elif gbfs.is_clicked((x,y)) and algorithm != Algorithm_Choice.GBFS:
                     gbfs.clicked()

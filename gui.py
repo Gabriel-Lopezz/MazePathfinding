@@ -195,7 +195,7 @@ def create_results(screen: pygame.Surface):
     container_margin_x = 20
     container_margin_y = 10
     container_width = BUTTON_WIDTH + 200
-    container_height = (BUTTON_HEIGHT + RESULT_GAP) * len(labels) + 10 # remove last gap
+    container_height = (BUTTON_HEIGHT + RESULT_GAP) * len(labels) + 8 # magic number to correctly pad the height
 
     container_rect = pygame.Rect(
         panel_x + container_margin_x,

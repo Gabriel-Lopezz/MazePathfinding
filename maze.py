@@ -210,7 +210,6 @@ class Maze:
                 continue
             
             while True:
-                print("\t\tCUR ROW, COL:", current_y, current_x)
                 # to check if it is a valid graph point
                 current_adjacents = self.get_adjacent((current_y, current_x))
                 if (self.is_valid_graph_point((current_y, current_x), current_adjacents)):

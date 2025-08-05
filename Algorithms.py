@@ -9,8 +9,8 @@ def heuristic(source: tuple[int, int], goal: tuple[int, int]):
     Calculate heuristic based on 4-Directional Manhattan Distance formula
     '''
 
-    dx = abs(goal[0] - source[0])
-    dy = abs(goal[1] - source[1])
+    dx = abs(source[0] - goal[0])
+    dy = abs(source[1] - goal[1])
 
     return (dx + dy)
 
@@ -76,7 +76,6 @@ def a_star(maze: Maze):
         if cur_f > prev_f:
             continue
 
-
         # Relax neighbors
         for neighbor in grid_neighbors(grid=maze_grid, source=cur_node):
             n_row, n_col = neighbor
@@ -107,7 +106,6 @@ def a_star(maze: Maze):
     return explored, list(reversed(final_path)), solve_time
 
 # Dijkstra section
-
 def expand_path(maze: Maze, node_a: tuple[int, int], node_b: tuple[int, int]) -> list[tuple[int, int]]:
     """
     Expands a straight corridor between two graph points into all intermediate coordinates

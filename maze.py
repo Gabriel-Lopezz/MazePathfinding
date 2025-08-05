@@ -97,9 +97,9 @@ class Maze:
         max_maze = MAZE_SIZE
 
         if self.rows < 2 or self.cols < 2 or self.rows != self.cols:
-            raise Exception(f"Maze must be square, at least 2x2. This maze has rows:{self.rows} cols:{self.cols}")
+            raise Exception(f"Maze must be square, at least 2x2. This maze has rows: {self.rows} cols: {self.cols}")
         elif self.rows > max_maze:
-            raise Exception(f"Maze cannot exceed maximum ")
+            raise Exception(f"Maze cannot exceed maximum of {max_maze}x{max_maze}")
         
         self.block_length = MAZE_SIZE // self.rows
         
@@ -138,7 +138,7 @@ class Maze:
             maze.append(maze_row)
         
         if starts > 1 or ends > 1:
-            raise Exception(f"No more than 1 start point or end point. This maze has starts:{starts}, ends:{ends}.")
+            raise Exception(f"No more than 1 start point or end point. This maze has starts: {starts}, ends: {ends}.")
 
         return maze
     

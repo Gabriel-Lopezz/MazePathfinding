@@ -3,8 +3,9 @@ from pygame.font import Font
 from constants import *
 
 class Text:
-    def __init__(self, screen: pygame.Surface, text_color: pygame.Color, font_size: int, 
-                 rect: pygame.Rect, text: str = "", bg_color=WHITE, font_path=None, center_text = True):
+    def __init__(self, screen: pygame.Surface, text_color: pygame.Color, font_size: int,
+                 rect: pygame.Rect, text: str = "", bg_color=(WHITE), 
+                 font_path=None, center_text=True):
         self.screen = screen
         self.text_color = text_color
         self.rect = rect
@@ -14,24 +15,59 @@ class Text:
         if font_path:
             self.font = pygame.font.Font(font_path, font_size)
         else:
-            self.font = Font(None, font_size)
+            self.font = pygame.font.Font(None, font_size)
+
+        self.center_text = center_text
 
         self.text_surface = self.font.render(text, True, text_color) # Render onto a surface
 
         if center_text:
-            self.rect = self.text_surface.get_rect(center=self.rect.center) # Center the text
+            # storing the center
+            self.text_center = self.rect.center
+        else:
+            self.text_center = None
+
+    def wrap_text(self):
+        """Split self.text into multiple lines that fit in self.rect width."""
+        words = self.text.split(" ")
+        lines = []
+        current_line = ""
+
+        for word in words:
+            test_line = current_line + (" " if current_line else "") + word
+            if self.font.size(test_line)[0] <= self.rect.width - 10:  # small padding
+                current_line = test_line
+            else:
+                lines.append(current_line)
+                current_line = word
+
+        if current_line:
+            lines.append(current_line)
+
+        return lines
 
     def draw(self):
-        '''
-        Draw text onto rect screen using defined rect
-        '''
-        self.text_surface = self.font.render(self.text, True, self.text_color) # Render onto a surface
-        self.screen.blit(self.text_surface, self.rect)
+        """Draw the text (wrapped) inside the rect."""
+        # Draw background and border
+        pygame.draw.rect(self.screen, pygame.Color("gray20"), self.rect)
+        pygame.draw.rect(self.screen, pygame.Color("gray20"), self.rect, 2)
+
+        # Render wrapped lines
+        lines = self.wrap_text()
+        line_height = self.font.get_linesize()
+
+        total_height = len(lines) * line_height
+        y_offset = self.rect.y + ((self.rect.height - (line_height * len(lines))) // 2 if self.center_text else 5)
+
+        for line in lines:
+            text_surface = self.font.render(line, True, self.text_color)
+            text_rect = text_surface.get_rect()
+            text_rect.x = self.rect.x + 5
+            text_rect.y = y_offset
+            self.screen.blit(text_surface, text_rect)
+            y_offset += line_height
 
     def clear(self):
-        '''
-        Draws the bg_color rect over the text
-        '''
         pygame.draw.rect(self.screen, self.bg_color, self.rect)
 
 class Button:
@@ -165,14 +201,14 @@ def create_buttons(screen):
     return tuple(buttons)
 
 def create_error_message(screen: pygame.Surface, error_message:str = ""):
-    ERROR_X = MAZE_PADDING_LEFT + MAZE_SIZE + 125
+    ERROR_X = MAZE_PADDING_LEFT + MAZE_SIZE + 20
     ERROR_Y = ERROR_PADDING_TOP
 
     error_rect = pygame.Rect(
         ERROR_X,
         ERROR_Y,
-        BUTTON_WIDTH,
-        BUTTON_HEIGHT
+        ERROR_WIDTH,
+        ERROR_HEIGHT
     )
 
     error_txt = Text(
@@ -182,7 +218,7 @@ def create_error_message(screen: pygame.Surface, error_message:str = ""):
         font_size = NUM_FONT - 5, # Smaller than usual for space
         rect = error_rect,
         bg_color=pygame.Color(WHITE),
-        
+
         text = error_message
     )
 
@@ -200,7 +236,7 @@ def create_results(screen: pygame.Surface):
     container_margin_x = 20
     container_margin_y = 10
     container_width = BUTTON_WIDTH + 200
-    container_height = (BUTTON_HEIGHT + RESULT_GAP) * len(labels) + 8 # magic number to correctly pad the height
+    container_height = (BUTTON_HEIGHT + RESULT_GAP) * len(labels) + 30 # magic number to correctly pad the height
 
     container_rect = pygame.Rect(
         panel_x + container_margin_x,

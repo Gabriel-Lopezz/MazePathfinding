@@ -17,7 +17,9 @@ RESULT_GAP = 2
 
 # error messages formatting
 
-ERROR_PADDING_TOP = 825
+ERROR_PADDING_TOP = 875
+ERROR_WIDTH = 350
+ERROR_HEIGHT = 102
 
 # Target frame rate (tick rate) relative to maze size
 # frame rate ~ draw rate

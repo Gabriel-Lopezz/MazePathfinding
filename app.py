@@ -186,6 +186,9 @@ def main():
             load_status, maze_output = load_maze_result[0]
 
             if load_status: # If successful
+                if error_message:
+                    error_message.clear()
+                    error_message = None
                 maze = maze_output
                 app_state, target_frame_rate = render_maze(maze=maze)
             else:

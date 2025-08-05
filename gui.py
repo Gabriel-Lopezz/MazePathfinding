@@ -142,7 +142,6 @@ def create_buttons(screen):
     button_width = BUTTON_WIDTH
     button_height = BUTTON_HEIGHT
 
-    # List of buttons: (button title, background color, extra space after button)
     button_list = [
         ("Upload Maze", LIGHT_SKY_BLUE, 10),
         ("Use Pre-made", LIGHT_SKY_BLUE, 40),
@@ -215,7 +214,7 @@ def create_error_message(screen: pygame.Surface, error_message:str = ""):
         screen = screen,
         text_color = RED,
         font_path="fot-yuruka-std.ttf",
-        font_size = NUM_FONT - 5, # Smaller than usual for space
+        font_size = NUM_FONT - 5, 
         rect = error_rect,
         bg_color=pygame.Color(WHITE),
 

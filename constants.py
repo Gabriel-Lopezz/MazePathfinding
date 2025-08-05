@@ -24,6 +24,7 @@ ERROR_HEIGHT = 102
 # Target frame rate (tick rate) relative to maze size
 # frame rate ~ draw rate
 SPEED_FACTOR = 0.10
+PERCENT_BLOCKS_DRAW = 0.0005
 
 #==COLORS==# if you change a color, comment what color it is
 BLACK = (0, 0, 0)

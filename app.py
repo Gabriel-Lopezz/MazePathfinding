@@ -57,8 +57,6 @@ def execute_and_display_stats(maze: Maze, algorithm_used: Callable, algorithm_va
                               optimal_path_length_value: gui.Text):
     explored_inds, optimal_path_inds, solve_time = algorithm_used(maze=maze)
 
-
-
     algorithm_value.text = "A*" if algorithm_used == Algorithms.a_star else "Dijkstra's"
     if round(solve_time, 4) == 0.0:
         exec_time_value.text = "<0.0001s"
@@ -75,8 +73,7 @@ def visualize_progressively(maze: Maze, explored_inds: list[tuple[int, int]], pa
 
     # We will draw a ratio `percent_blocks_drawn` of the explored_inds path per frame
     # For small graphs, this will be lower than 1. We need at least one block drawn per frame
-    percent_blocks_drawn = 0.0005
-    blocks_per_frame = max(int(len(explored_inds) * percent_blocks_drawn), 1)
+    blocks_per_frame = max(int(len(explored_inds) * PERCENT_BLOCKS_DRAW), 1)
 
     # Logic for drawing mazes, yields if we are still drawing (draws between start and end)
     for i in range(1, len(explored_inds), blocks_per_frame):

@@ -167,7 +167,8 @@ class Maze:
             A coordinate has a turn if its only TWO neighbors have a different x and y coordinate
         '''
         y,x = center
-        if self.maze_array[y][x] == BlockState.START or self.maze_array[y][x] == BlockState.END: # coordinate is a start/end point
+
+        if self.maze_array[y][x].state == BlockState.START or self.maze_array[y][x].state == BlockState.END: # coordinate is a start/end point
             return True
         if len(adjacents) >= 3 or len(adjacents) == 1: # coordinate (x,y) is an intersection or a deadend
             return True
@@ -194,8 +195,6 @@ class Maze:
             when it gets to a valid graph point, it will add it to the graph
         '''
         start_y, start_x = start_point
-        if start_point == (45, 8):
-            print("Corridors walked: for 231")
         # 0s are there so only either the x or y coordinate is changed in one loop
         dx = [1, -1, 0, 0]  # right, left
         dy = [0, 0, 1, -1]  # down, up
@@ -211,6 +210,7 @@ class Maze:
                 continue
             
             while True:
+                print("\t\tCUR ROW, COL:", current_y, current_x)
                 # to check if it is a valid graph point
                 current_adjacents = self.get_adjacent((current_y, current_x))
                 if (self.is_valid_graph_point((current_y, current_x), current_adjacents)):

@@ -52,7 +52,7 @@ def a_star(maze: Maze):
     # Start block parameters
     start_h = heuristic(source=start, goal=end)
 
-    # min heap for available routes, (heuristic, grid indices)
+    # min heap for available routes, (f_score, grid indices)
     frontier = [(start_h, start)]
 
     predecessors = {}
